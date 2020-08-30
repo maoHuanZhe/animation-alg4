@@ -11,15 +11,15 @@
           </el-input>
         </el-col>
         <el-col :span="10">
-          <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!=='' || intervalIDanimation !== ''">开始</el-button>
-<!--          <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>-->
-<!--          <el-button type="primary" @click="step" icon="el-icon-video-pause" :loading="intervalIDanimation !== ''">下一步</el-button>-->
-<!--          <el-button type="primary" @click="finished" icon="el-icon-finished" :loading="intervalIDanimation !== ''">跳过</el-button>-->
-<!--          <el-button type="primary" @click="refresh" icon="el-icon-refresh-right" :loading="intervalIDanimation !== ''">重置</el-button>-->
+          <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==''">开始</el-button>
+          <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
+          <el-button type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
+          <el-button type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
+          <el-button type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
         </el-col>
-<!--        <el-col :span="2">-->
-<!--          <el-slider v-model="intervalTime" :min="1" :max="90" @change="changeInterval" style="width:100px;"></el-slider>-->
-<!--        </el-col>-->
+        <el-col :span="2">
+          <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
+        </el-col>
       </el-row>
     </el-header>
     <el-main>
@@ -34,8 +34,8 @@
           <el-tag type="success" >已排序元素</el-tag>
         </el-col>
       </el-row>
-      <div :key="menuKey" style="background-color: gray;" ref="main">
-        <el-tag class="tagClass" :ref="'tag'+index" :type="getType(index)" v-for="(item,index) in items" :key="item + '-' + index">{{item}}</el-tag>
+      <div :key="menuKey">
+        <node :items="items" :index="0"></node>
       </div>
     </el-main>
     <el-footer height="290px">
@@ -78,10 +78,13 @@ for(int i = 1;i < arr.size(); i++;){
 </template>
 
 <script>
-    import {exch, less, createArr} from "../../util/util";
-    import {PlainDraggable} from "../../util/plain-draggable-limit.min"
+    import node from "./node"
+    import {exch, less, createArr} from "../../../util/util";
     export default {
         name: "selection"
+        ,components : {
+            node
+        }
         ,data() {
             return {
                 imput: ''
@@ -109,18 +112,12 @@ for(int i = 1;i < arr.size(); i++;){
                 ,textArr:[]
                 //定时器编号
                 ,intervalID:''
-                //动画定时器
-                ,intervalIDanimation : ''
-                ,isStop : false
                 //定时器速度
                 ,intervalTime:50
-                //一行有几个元素
-                ,lineNum: 0
             }
         },
         methods:{
             sort(){
-                this.isStop = false;
                 if (this.items.length <= 0){
                     this.$message({
                         message: '数组为空',
@@ -162,7 +159,7 @@ for(int i = 1;i < arr.size(); i++;){
                     current.inner = 1;
                     //复制数组
                     this.items.forEach(((value, index) =>
-                        this.$set(this.oldArr,index,value)
+                            this.$set(this.oldArr,index,value)
                     ))
                     //设置排序状态为排序中
                     this.sortState = 2;
@@ -171,7 +168,9 @@ for(int i = 1;i < arr.size(); i++;){
                     //比较当前值与前一个值的大小 小于就交换 不小于就结束循环
                     if (less(this.items[current.inner],this.items[current.inner - 1])) {
                         this.textArr.unshift('当前值小于前一个值');
-                        this.animation(current.inner-1,current.inner);
+                        //交换
+                        exch(this.items,current.inner,current.inner-1);
+                        this.changeCurrent(false);
                     } else {
                         this.textArr.unshift('当前值不小于前一个值');
                         this.changeCurrent(true);
@@ -226,7 +225,7 @@ for(int i = 1;i < arr.size(); i++;){
                         current.inner--;
                     } else {
                         //结束内循环
-                      this.changeCurrent(true);
+                        this.changeCurrent(true);
                     }
                 }
                 this.menuKey++;
@@ -242,22 +241,14 @@ for(int i = 1;i < arr.size(); i++;){
             //跳过按钮点击事件
             finished(){
                 this.stop();
-                this.finished = true;
                 while (this.items.length > 0 && !this.isSort){
                     this.step();
                 }
-                this.finished = false;
             },
             //暂停按钮
             stop(){
-                if (this.intervalID !== ''){
-                    if (this.intervalIDanimation === ''){
-                        clearInterval(this.intervalID);
-                        this.intervalID = '';
-                    }else {
-                        this.isStop = true;
-                    }
-                }
+                clearInterval(this.intervalID);
+                this.intervalID = '';
             },
             changeInterval(){
                 this.stop();
@@ -275,44 +266,6 @@ for(int i = 1;i < arr.size(); i++;){
                 this.sortState = 0;
                 ++this.menuKey;
             }
-            ,animation(a,b){
-                this.stop();
-                //a所在的行
-                const a_row = Math.floor(a/this.lineNum);
-                //a所在的列
-                const a_col = Math.floor(a%this.lineNum);
-                //b所在的行
-                const b_row = Math.floor(b/this.lineNum);
-                //b所在的列
-                const b_col = Math.floor(b%this.lineNum);
-                let draggable_a = new PlainDraggable(this.$refs['tag'+a][0].$el);
-                let draggable_b = new PlainDraggable(this.$refs['tag'+b][0].$el);
-                draggable_a.top += (10 + (b_row - a_row)*52);
-                draggable_b.top -= (10 + (b_row - a_row)*52);
-                let conut = 1;
-                const row = (b_col - a_col)*65;
-                this.intervalIDanimation = setInterval(()=>{
-                    if (conut === 10){
-                        draggable_a.left += row - 9*Math.floor(row/10);
-                        draggable_b.left -= row - 9*Math.floor(row/10);
-                        draggable_a.top -= 10;
-                        draggable_b.top += 10;
-                        draggable_a.remove();
-                        draggable_b.remove();
-                        exch(this.items,a,b);
-                        this.changeCurrent(false);
-                        clearInterval(this.intervalIDanimation);
-                        this.intervalIDanimation = '';
-                        if (!this.isStop){
-                            this.sort();
-                        }
-                    }else {
-                        draggable_a.left += Math.floor(row/10);
-                        draggable_b.left -= Math.floor(row/10);
-                        conut++
-                    }
-                },90 - this.intervalTime);
-            }
         },
         computed: {
             //是否排序完成
@@ -320,20 +273,10 @@ for(int i = 1;i < arr.size(); i++;){
                 return this.sortState === 3;
             }
         }
-        ,mounted() {
-            //获取页面宽度
-            const mainWidth =  this.$refs.main.clientWidth
-            //计算每行会有几个元素
-            this.lineNum = Math.floor(mainWidth/65);
-        }
     }
 </script>
 
 <style scoped>
-  .tagClass{
-    margin: 10px;
-    width: 45px;
-  }
   .currentNum{
     color: red;
   }

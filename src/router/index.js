@@ -68,6 +68,13 @@ const routes = [
                             title: '三分快速排序'
                         }
                     }
+                    ,{   path: 'heap'
+                        ,component: () => import('../components/sort/heap')
+                        ,meta:{
+                            // 页面标题title
+                            title: '堆排序'
+                        }
+                    }
                 ]
             }
             ,{   path: 'search'

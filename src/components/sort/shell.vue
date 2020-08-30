@@ -10,14 +10,19 @@
               clearable>
           </el-input>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="2">
           <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==''">开始</el-button>
+        </el-col>
+        <el-col :span="1">
+          <el-checkbox v-model="hasAnimation" style="line-height: 40px;">动画</el-checkbox>
+        </el-col>
+        <el-col :span="7" v-if="!hasAnimation">
           <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
           <el-button type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
           <el-button type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
           <el-button type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
         </el-col>
-        <el-col :span="2">
+        <el-col :span="2" v-if="!hasAnimation">
           <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
         </el-col>
       </el-row>
@@ -34,8 +39,8 @@
           <el-tag type="success" >已排序元素</el-tag>
         </el-col>
       </el-row>
-      <div :key="menuKey">
-        <el-tag class="tagClass" :type="getType(index)" v-for="(item,index) in items" :key="item + '-' + index">{{item}}</el-tag>
+      <div :key="menuKey" style="background-color: gray;" ref="main">
+        <el-tag class="tagClass" :ref="'tag'+index" :type="getType(index)" v-for="(item,index) in items" :key="item + '-' + index">{{item}}</el-tag>
       </div>
     </el-main>
     <el-footer height="290px">
@@ -79,6 +84,7 @@ for(int i = 1;i < arr.size(); i++;){
 
 <script>
     import {exch, less, createArr} from "../../util/util";
+    import {PlainDraggable} from "../../util/plain-draggable-limit.min";
     export default {
         name: "selection"
         ,data() {
@@ -112,6 +118,10 @@ for(int i = 1;i < arr.size(); i++;){
                 ,intervalID:''
                 //定时器速度
                 ,intervalTime:50
+                //是否有动画
+                ,hasAnimation:false
+                //一行有几个元素
+                ,lineNum: 0
             }
         },
         methods:{
@@ -147,9 +157,13 @@ for(int i = 1;i < arr.size(); i++;){
                     //比较当前值与前一个值的大小 小于就交换 不小于就结束循环
                     if (less(this.items[current.inner],this.items[current.inner - current.h])) {
                         this.textArr.unshift('当前值小于前一个值');
-                        //交换
-                        exch(this.items,current.inner,current.inner-current.h);
-                        this.changeCurrent(false);
+                        if (this.hasAnimation){
+                            this.animation(current.inner-current.h,current.inner);
+                        }else {
+                            //交换
+                            exch(this.items,current.inner,current.inner-current.h);
+                            this.changeCurrent(false);
+                        }
                     } else {
                         this.textArr.unshift('当前值不小于前一个值');
                         this.changeCurrent(true);
@@ -160,9 +174,48 @@ for(int i = 1;i < arr.size(); i++;){
                         message: '排序已经完成',
                         type: 'warning'
                     });
+                    this.stop();
                 }
-            },
-            getType(index){
+            }
+            ,animation(a,b){
+                this.stop();
+                //a所在的行
+                const a_row = Math.floor(a/this.lineNum);
+                //a所在的列
+                const a_col = Math.floor(a%this.lineNum);
+                //b所在的行
+                const b_row = Math.floor(b/this.lineNum);
+                //b所在的列
+                const b_col = Math.floor(b%this.lineNum);
+                let draggable_a = new PlainDraggable(this.$refs['tag'+a][0].$el);
+                let draggable_b = new PlainDraggable(this.$refs['tag'+b][0].$el);
+                draggable_a.top += (10 + (b_row - a_row)*52);
+                draggable_b.top -= (10 + (b_row - a_row)*52);
+                let conut = 1;
+                const row = (b_col - a_col)*65;
+                this.intervalIDanimation = setInterval(()=>{
+                    if (conut === 10){
+                        draggable_a.left += row - 9*Math.floor(row/10);
+                        draggable_b.left -= row - 9*Math.floor(row/10);
+                        draggable_a.top -= 10;
+                        draggable_b.top += 10;
+                        draggable_a.remove();
+                        draggable_b.remove();
+                        exch(this.items,a,b);
+                        this.changeCurrent(false);
+                        clearInterval(this.intervalIDanimation);
+                        this.intervalIDanimation = '';
+                        if (!this.isStop){
+                            this.sort();
+                        }
+                    }else {
+                        draggable_a.left += Math.floor(row/10);
+                        draggable_b.left -= Math.floor(row/10);
+                        conut++
+                    }
+                },90 - this.intervalTime);
+            }
+            ,getType(index){
                 if (this.sortState === 0){
                     return 'info'
                 } else if (this.sortState === 3){
@@ -271,6 +324,12 @@ for(int i = 1;i < arr.size(); i++;){
             isSort() {
                 return this.sortState === 3;
             }
+        }
+        ,mounted() {
+            //获取页面宽度
+            const mainWidth =  this.$refs.main.clientWidth
+            //计算每行会有几个元素
+            this.lineNum = Math.floor(mainWidth/65);
         }
     }
 </script>

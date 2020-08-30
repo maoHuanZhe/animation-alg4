@@ -10,14 +10,19 @@
               clearable>
           </el-input>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="2">
           <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==''">开始</el-button>
+        </el-col>
+        <el-col :span="1">
+          <el-checkbox v-model="hasAnimation" style="line-height: 40px;">动画</el-checkbox>
+        </el-col>
+        <el-col :span="7" v-if="!hasAnimation">
           <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
           <el-button type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
           <el-button type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
           <el-button type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
         </el-col>
-        <el-col :span="2">
+        <el-col :span="2" v-if="!hasAnimation">
           <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
         </el-col>
       </el-row>
@@ -45,9 +50,9 @@
       </el-row>
       <el-row :gutter="20">
         <el-col :span="18">
-          <el-row :gutter="20" :key="menuKey">
-          <el-tag class="tagClass" :type="getType(index)" :effect="getEffect(index)" v-for="(item,index) in items" :key="item + '-' + index">{{item}}</el-tag>
-        </el-row>
+          <div :key="menuKey" style="background-color: gray;" ref="main">
+            <el-tag class="tagClass" :ref="'tag'+index" :type="getType(index)" v-for="(item,index) in items" :key="item + '-' + index">{{item}}</el-tag>
+          </div>
         </el-col>
         <el-col :span="6" v-if="stack.length > 0">
           <el-card class="box-card" shadow="hover">
@@ -139,6 +144,7 @@ private static int pratition(Comparable[] a,int lo,int mid,int hi){
 
 <script>
     import {less, createArr, exch} from "../../util/util";
+    import {PlainDraggable} from "../../util/plain-draggable-limit.min";
     export default {
         name: "merge"
         ,data() {
@@ -176,6 +182,10 @@ private static int pratition(Comparable[] a,int lo,int mid,int hi){
                 ,intervalID:''
                 //定时器速度
                 ,intervalTime:50
+                //是否有动画
+                ,hasAnimation:false
+                //一行有几个元素
+                ,lineNum: 0
             }
         },
         methods:{
@@ -249,28 +259,83 @@ private static int pratition(Comparable[] a,int lo,int mid,int hi){
                     //比较两个下标
                     if (current.i>=current.j){
                         //两个下标交叉以后 结束查找 交换元素 继续切分
-                        //将切分元素放到正确的位置
-                        exch(this.items,this.now.lo,current.j);
                         this.textArr.unshift("将切分元素放到正确的位置");
-                        //设置当前值
-                        this.changeCurrent();
+                        if (this.hasAnimation){
+                            this.animation(this.now.lo,current.j);
+                        }else {
+                            //将切分元素放到正确的位置
+                            exch(this.items,this.now.lo,current.j);
+                            //设置当前值
+                            this.changeCurrent();
+                        }
                     }else {
-                        //满足条件就 交换元素 继续查找
-                        exch(this.items,current.i,current.j);
                         this.textArr.unshift("交换元素 继续查找");
-                        current.serachLeft = true;
-                        current.serachRight = true;
+                        if (this.hasAnimation){
+                            this.animation(this.now.lo,current.j);
+                        }else {
+                            //满足条件就 交换元素 继续查找
+                            exch(this.items,current.i,current.j);
+                            current.serachLeft = true;
+                            current.serachRight = true;
+                        }
                     }
-                    this.menuKey++;
                 } else if (this.sortState === 3) {
                     //已排序
                     this.$message({
                         message: '排序已经完成',
                         type: 'warning'
                     });
+                    this.stop();
                 }
-            },
-            getType(index){
+            }
+            ,animation(a,b){
+            this.stop();
+            //a所在的行
+            const a_row = Math.floor(a/this.lineNum);
+            //a所在的列
+            const a_col = Math.floor(a%this.lineNum);
+            //b所在的行
+            const b_row = Math.floor(b/this.lineNum);
+            //b所在的列
+            const b_col = Math.floor(b%this.lineNum);
+            let draggable_a = new PlainDraggable(this.$refs['tag'+a][0].$el);
+            let draggable_b = new PlainDraggable(this.$refs['tag'+b][0].$el);
+            draggable_a.top += (10 + (b_row - a_row)*52);
+            draggable_b.top -= (10 + (b_row - a_row)*52);
+            let conut = 1;
+            const row = (b_col - a_col)*65;
+            this.intervalIDanimation = setInterval(()=>{
+                if (conut === 10){
+                    draggable_a.left += row - 9*Math.floor(row/10);
+                    draggable_b.left -= row - 9*Math.floor(row/10);
+                    draggable_a.top -= 10;
+                    draggable_b.top += 10;
+                    draggable_a.remove();
+                    draggable_b.remove();
+                    let current = this.current;
+                    if (current.i>=current.j){
+                        exch(this.items,this.now.lo,current.j);
+                        //设置当前值
+                        this.changeCurrent();
+                    }else {
+                        exch(this.items,current.i,current.j);
+                        current.serachLeft = true;
+                        current.serachRight = true;
+                    }
+                    this.menuKey++;
+                    clearInterval(this.intervalIDanimation);
+                    this.intervalIDanimation = '';
+                    if (this.sortState !== 3){
+                        this.sort();
+                    }
+                }else {
+                    draggable_a.left += Math.floor(row/10);
+                    draggable_b.left -= Math.floor(row/10);
+                    conut++
+                }
+            },90 - this.intervalTime);
+        }
+            ,getType(index){
                 if (this.sortState === 0){
                     return 'info'
                 } else if (this.sortState === 3){
@@ -386,6 +451,12 @@ private static int pratition(Comparable[] a,int lo,int mid,int hi){
             now(){
                 return this.stack[0];
             }
+        }
+        ,mounted() {
+            //获取页面宽度
+            const mainWidth =  this.$refs.main.clientWidth
+            //计算每行会有几个元素
+            this.lineNum = Math.floor(mainWidth/65);
         }
     }
 </script>

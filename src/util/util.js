@@ -28,6 +28,9 @@ export function exch(items,i,j) {
  * @returns {number}
  */
 export function random(max) {
+    if (max > 1000){
+        max = 1000
+    }
     return Math.floor(Math.random()*max);
 }
 
