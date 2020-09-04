@@ -3,6 +3,8 @@ import VueRouter from "vue-router";
 Vue.use(VueRouter);
 import home from "../components/home";
 import sort from "../components/sort"
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 const routes = [
     {   path: '/',
         redirect: '/sort/selection',//设置默认指向的路径
@@ -84,6 +86,9 @@ const routes = [
     }
 
 ]
-export default new VueRouter({
+let router = new VueRouter({
     routes
-})
+});
+router.beforeEach((to, from, next) => { NProgress.start(); next() })
+router.afterEach(() => { NProgress.done() })
+export default router
