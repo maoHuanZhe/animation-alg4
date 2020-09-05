@@ -2,7 +2,7 @@
   <div>
     <el-divider content-position="left">示例元素</el-divider>
     <el-row :gutter="20">
-      <el-tag style="margin: 10px;" v-for="tag in demoTag" :type="tag.type" :effect="tag.effect" >{{ tag.text }}</el-tag>
+      <el-tag :size="getSize()" style="margin: 10px;" v-for="tag in demoTag" :type="tag.type" :effect="tag.effect" >{{ tag.text }}</el-tag>
     </el-row>
     <el-divider content-position="left">待排序数组</el-divider>
     <div style="background-color: gray;" ref="main">
@@ -23,6 +23,16 @@
             now:Object
         },
         methods:{
+            getSize(){
+                const size = this.$store.state.size;
+                if (size === 'xs'){
+                    return "mini"
+                } else if (size === 'xl'){
+                    return "medium"
+                } else {
+                    return "small"
+                }
+            },
             getType(index){
                 if (this.method === "select"){
                     if (this.sortState === 0){

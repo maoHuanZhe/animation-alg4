@@ -6,7 +6,8 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         hasAnimation: true,
-        lineNum:1
+        lineNum:1,
+        size:'xl'
     },
     mutations: {
         CHANGE_STATE: (state, data) => {

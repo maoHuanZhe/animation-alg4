@@ -7,7 +7,8 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-
+//基于断点的隐藏类
+import 'element-ui/lib/theme-chalk/display.css';
 Vue.use(ElementUI);
 Vue.config.productionTip = false
 

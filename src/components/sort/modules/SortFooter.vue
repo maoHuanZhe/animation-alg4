@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="20">
-    <el-col :span="getSpan()">
+    <el-col :xs="24" :sm="24" :md="getSpan()" :lg="getSpan()" :xl="getSpan()">
       <el-card class="box-card" shadow="hover">
         <div slot="header" style="text-align: center;">
           <span>console</span>
@@ -13,7 +13,7 @@
         </div>
       </el-card>
     </el-col>
-    <el-col :span="getSpan()">
+    <el-col :xs="24" :sm="24" :md="getSpan()" :lg="getSpan()" :xl="getSpan()">
       <el-card class="box-card" shadow="hover">
         <div slot="header" style="text-align: center;">
           <span>code</span>
@@ -158,13 +158,13 @@ private static void sort(Comparable[] a,int lo,int hi){
         </div>
       </el-card>
     </el-col>
-    <el-col :span="getSpan()" v-if="method==='quick'">
+    <el-col :xs="24" :sm="24" :md="getSpan()" :lg="getSpan()" :xl="getSpan()" v-if="method==='quick'">
       <el-card class="box-card" shadow="hover">
-        <div slot="header">
+        <div slot="header" style="text-align: center;">
           <span>函数栈</span>
         </div>
         <div class="consoleDiv">
-          <el-row :gutter="5">
+          <el-row>
             <el-col :span="8">
               <el-tag type="danger">lo</el-tag>
             </el-col>
@@ -175,7 +175,7 @@ private static void sort(Comparable[] a,int lo,int hi){
               <el-tag type="danger">hi</el-tag>
             </el-col>
           </el-row>
-          <el-row :gutter="5" v-for="(args, index) in stack" :style="getStyle(index)">
+          <el-row v-for="(args, index) in stack" :style="getStyle(index)">
             <el-col :span="8">
               <el-tag>{{args.lo}}</el-tag>
             </el-col>
@@ -189,13 +189,13 @@ private static void sort(Comparable[] a,int lo,int hi){
         </div>
       </el-card>
     </el-col>
-    <el-col :span="getSpan()" v-if="method==='merge'">
+    <el-col :xs="24" :sm="24" :md="getSpan()" :lg="getSpan()" :xl="getSpan()" v-if="method==='merge'">
       <el-card class="box-card" shadow="hover">
-        <div slot="header">
+        <div slot="header" style="text-align: center;">
           <span>函数栈</span>
         </div>
         <div class="consoleDiv">
-          <el-row :gutter="5">
+          <el-row>
             <el-col :span="8">
               <el-tag type="danger">lo</el-tag>
             </el-col>
@@ -206,7 +206,7 @@ private static void sort(Comparable[] a,int lo,int hi){
               <el-tag type="danger">hi</el-tag>
             </el-col>
           </el-row>
-          <el-row :gutter="5" v-for="(args, index) in stack" :style="getStyle(index)">
+          <el-row v-for="(args, index) in stack" :style="getStyle(index)">
             <el-col :span="8">
               <el-tag>{{args.lo}}</el-tag>
             </el-col>
@@ -220,13 +220,13 @@ private static void sort(Comparable[] a,int lo,int hi){
         </div>
       </el-card>
     </el-col>
-    <el-col :span="getSpan()" v-if="method==='quick3way'">
+    <el-col :xs="24" :sm="24" :md="getSpan()" :lg="getSpan()" :xl="getSpan()" v-if="method==='quick3way'">
       <el-card class="box-card" shadow="hover">
-        <div slot="header">
+        <div slot="header" style="text-align: center;">
           <span>函数栈</span>
         </div>
         <div class="consoleDiv">
-          <el-row :gutter="5">
+          <el-row>
             <el-col :span="6">
               <el-tag type="danger">lo</el-tag>
             </el-col>
@@ -240,7 +240,7 @@ private static void sort(Comparable[] a,int lo,int hi){
               <el-tag type="danger">hi</el-tag>
             </el-col>
           </el-row>
-          <el-row :gutter="5" v-for="(args, index) in stack" :style="getStyle(index)">
+          <el-row v-for="(args, index) in stack" :style="getStyle(index)">
             <el-col :span="6">
               <el-tag>{{args.lo}}</el-tag>
             </el-col>

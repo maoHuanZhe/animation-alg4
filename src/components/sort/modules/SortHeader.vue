@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="10">
-    <el-col :span="12">
+    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
       <el-input
           placeholder="输入一个数字或以逗号相隔的数组"
           v-model="input"
@@ -8,16 +8,14 @@
           clearable>
       </el-input>
     </el-col>
-    <el-col :span="2">
-      <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==-1">开始</el-button>
+    <el-col :xs="24" :sm="20" :md="10" :lg="10" :xl="10">
+      <el-button :size="getSize()" type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==-1">开始</el-button>
+      <el-button :size="getSize()" v-if="!hasAnimation" type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
+      <el-button :size="getSize()" v-if="!hasAnimation" type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
+      <el-button class="hidden-xs-only" :size="getSize()" v-if="!hasAnimation" type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
+      <el-button class="hidden-xs-only" :size="getSize()" v-if="!hasAnimation" type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
     </el-col>
-    <el-col :span="7" v-if="!hasAnimation">
-      <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
-      <el-button type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
-      <el-button type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
-      <el-button type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
-    </el-col>
-    <el-col :span="2" v-if="!hasAnimation">
+    <el-col :sm="4" :md="2" :lg="2" :xl="2" v-if="!hasAnimation" class="hidden-xs-only">
       <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
     </el-col>
   </el-row>
@@ -46,6 +44,16 @@
             }
         },
         methods:{
+            getSize(){
+                const size = this.$store.state.size;
+                if (size === 'xs'){
+                  return "mini"
+              } else if (size === 'xl'){
+                  return "medium"
+              } else {
+                  return "small"
+              }
+            },
             sort(){
                 this.$emit("sort")
             },

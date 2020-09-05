@@ -39,10 +39,8 @@
       </el-menu>
     </el-header>
     <el-main ref="main">
-      <transition name="fade-transform" mode="out-in">
-        <keep-alive>
+      <transition name="slide-fade" mode="out-in">
           <router-view :key="key" />
-        </keep-alive>
       </transition>
     </el-main>
     <el-footer style="text-align: center;">
@@ -98,9 +96,20 @@
         const mainHeight = document.documentElement.clientHeight;
         this.$refs.main.$el.style.height = (mainHeight-120-16) +'px';
         //获取页面宽度
-        const mainWidth =  this.$refs.main.$el.clientWidth - 80;
+        const mainWidth =  this.$refs.main.$el.clientWidth;
+        if (mainWidth >=1920){
+            this.$store.dispatch('changeState', {key:'size',val:"xl"})
+        } else if (mainWidth < 1920 && mainWidth >= 1200){
+            this.$store.dispatch('changeState', {key:'size',val:"lg"})
+        } else if (mainWidth < 1200 && mainWidth >= 992){
+            this.$store.dispatch('changeState', {key:'size',val:"md"})
+        } else if (mainWidth < 992 && mainWidth >= 768){
+            this.$store.dispatch('changeState', {key:'size',val:"sm"})
+        } else if (mainWidth < 768){
+            this.$store.dispatch('changeState', {key:'size',val:"xs"})
+        }
         //计算每行会有几个元素
-        this.$store.dispatch('changeState', {key:'lineNum',val:Math.floor(mainWidth/65)})
+        this.$store.dispatch('changeState', {key:'lineNum',val:Math.floor((mainWidth-80)/65)})
       }
       ,computed: {
         key() {
@@ -119,6 +128,19 @@
 </script>
 
 <style scoped>
+  /* 可以设置不同的进入和离开动画 */
+  /* 设置持续时间和动画函数 */
+  .slide-fade-enter-active {
+    transition: all .5s ease;
+  }
+  .slide-fade-leave-active {
+    transition: all .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter, .slide-fade-leave-to
+    /* .slide-fade-leave-active for below version 2.1.8 */ {
+    transform: translateX(10px);
+    opacity: 0;
+  }
   @font-face {
     font-family: 'iconfont';  /* project id 2047640 */
     src: url('//at.alicdn.com/t/font_2047640_aq84d5tg0s4.eot');
