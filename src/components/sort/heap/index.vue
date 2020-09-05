@@ -19,11 +19,17 @@
       ></SortHeader>
     </el-header>
     <el-main>
+      <el-divider content-position="left">示例元素</el-divider>
+      <el-row :gutter="20">
+        <el-tag :size="getSize()" style="margin: 10px;" v-for="tag in demoTag" :type="tag.type" :effect="tag.effect" >{{ tag.text }}</el-tag>
+      </el-row>
+      <el-divider content-position="left">待排序数组</el-divider>
       <div :key="menuKey">
-        <node v-if="items.length > 0" :items="items" :index="0"></node>
+        <node :current="current" :sort-state="sortState" v-if="items.length > 0" :items="items" :index="0"></node>
       </div>
     </el-main>
-    <el-footer height="290px">
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="heap" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -32,22 +38,37 @@
     import node from "./node"
     import {exch, less, createArr} from "../../../util/util";
     import SortHeader from "../modules/SortHeader";
+    import SortFooter from "../modules/SortFooter";
     export default {
         name: "selection"
         ,components : {
             node,
-            SortHeader
+            SortHeader,
+            SortFooter
         }
         ,data() {
             return {
-                imput: ''
-                ,menuKey:1
+                demoTag:[
+                    {text:"未排序元素",type:"info",effect:"plain"},
+                    {text:"较大子元素",type:"danger",effect:"plain"},
+                    {text:"下沉元素",type:"warning",effect:"plain"},
+                    {text:"已排序元素",type:"success",effect:"plain"}
+                ],
+                menuKey:1
                 //当前值
                 ,current: {
-                    //外循环下标
-                    outside: '',
-                    //内循环下标
-                    inner: ''
+                  //堆是否有序
+                  heapIsSort:false
+                  //是否比较两个子元素
+                  ,childrenIsLess:false
+                  //当前有效数组长度
+                  ,N: 0
+                  //当前下沉元素
+                  ,k:0
+                  //较大的子元素
+                  ,j:0
+                  //初始下沉元素
+                  ,firstK:0
                 },
                 /**
                  * 排序状态
@@ -70,20 +91,17 @@
             }
         },
         methods:{
+            getSize(){
+                const size = this.$store.state.size;
+                if (size === 'xs'){
+                    return "mini"
+                } else if (size === 'xl'){
+                    return "medium"
+                } else {
+                    return "small"
+                }
+            },
             sort(){
-                if (this.items.length <= 0){
-                    this.$message({
-                        message: '数组为空',
-                        type: 'warning'
-                    });
-                    return;
-                }
-                //判断排序状态
-                if (this.sortState === 0){
-                    //未排序状态
-                    //设置排序状态为开始排序
-                    this.sortState = 1;
-                }
                 this.intervalID = setInterval(()=>{
                     this.step();
                 },1000 - this.intervalTime*10);
@@ -108,25 +126,62 @@
                 } else if (this.sortState === 1) {
                     //开始排序状态
                     //设置当前值
-                    current.outside = 1;
-                    current.inner = 1;
+                    this.changeCurrent();
                     //复制数组
                     this.items.forEach(((value, index) =>
-                            this.$set(this.oldArr,index,value)
+                      this.$set(this.oldArr,index,value)
                     ))
                     //设置排序状态为排序中
                     this.sortState = 2;
                 } else if (this.sortState === 2) {
                     //排序中
-                    //比较当前值与前一个值的大小 小于就交换 不小于就结束循环
-                    if (less(this.items[current.inner],this.items[current.inner - 1])) {
-                        this.textArr.unshift('当前值小于前一个值');
-                        //交换
-                        exch(this.items,current.inner,current.inner-1);
-                        this.changeCurrent(false);
+                    //判断堆是否有序
+                    if (!current.heapIsSort){
+                        //堆未排序
+                        this.textArr.unshift('堆未排序');
+                        //判断是否比较两个子元素
+                        if (current.childrenIsLess){
+                            //子元素已比较
+                            this.textArr.unshift('子元素已比较');
+                            //比较当前下沉元素与子元素
+                            if (less(this.items[current.k],this.items[current.j])){
+                                this.textArr.unshift('交换');
+                                //当前下沉元素小于子元素
+                                //交换
+                                exch(this.items,current.k,current.j);
+                                this.changeCurrent(false);
+                            } else {
+                                this.textArr.unshift('结束下沉');
+                                //当前下沉元素不小于子元素
+                                // 结束下沉
+                                this.changeCurrent(true);
+                            }
+                        } else {
+                            this.textArr.unshift('子元素未比较');
+                            //子元素未比较 比较两个子元素
+                            if (current.j < current.N -1 && less(this.items[current.j],this.items[current.j+1])){
+                                this.textArr.unshift('当前子元素小于另一个元素');
+                                //当前子元素小于另一个元素
+                                current.j++;
+                                this.menuKey++;
+                            }
+                            current.childrenIsLess = true;
+                        }
                     } else {
-                        this.textArr.unshift('当前值不小于前一个值');
-                        this.changeCurrent(true);
+                        this.textArr.unshift('堆已排序');
+                        //堆已排序
+                        exch(this.items,0,--current.N);
+                        if (current.N>1){
+                            current.k = 0;
+                            current.j = 1
+                            current.firstK = 0;
+                            current.heapIsSort = false;
+                            current.childrenIsLess = false;
+                        } else {
+                            current = {};
+                            this.sortState = 3;
+                            this.stop();
+                        }
                     }
                 } else if (this.sortState === 3) {
                     //已排序
@@ -134,52 +189,47 @@
                         message: '排序已经完成',
                         type: 'warning'
                     });
-                }
-            },
-            getType(index){
-                if (this.sortState === 0){
-                    return 'info'
-                } else if (this.sortState === 3){
-                    return 'success';
-                }else {
-                    if (index === this.current.min){
-                        return 'warning';
-                    } else if (index === this.current.outside || index === this.current.inner) {
-                        return 'danger';
-                    } else {
-                        return "info";
-                    }
+                    this.stop();
                 }
             },
             /**
              * 改变当前值
-             * @param flag 是否结束当前循环
              */
             changeCurrent(flag){
                 let current = this.current;
                 const length = this.items.length;
-                if(flag){
-                    //结束内循环
-                    //判断外循环
-                    if (current.outside < length) {
-                        //外循环加一
-                        current.inner = ++current.outside;
-                    } else {
-                        //外循环结束
-                        //排序完成
-                        this.textArr.unshift("排序完成");
-                        this.sortState = 3;
-                        this.current = {};
-                        this.stop();
-                    }
+                if (this.sortState === 1){
+                    //设置初始值
+                    current.heapIsSort=false;
+                    current.childrenIsLess=false;
+                    current.N=length;
+                    current.k=Math.floor(length/2) - 1;
+                    current.j = current.k * 2 + 1;
+                    current.firstK=current.k;
                 } else {
-                    if (current.inner > 0) {
-                        //继续内循环
-                        current.inner--;
-                    } else {
-                        //结束内循环
-                        this.changeCurrent(true);
-                    }
+                  if (flag){
+                      //结束当前元素的下沉
+                      current.firstK--;
+                  } else {
+                      //继续下沉
+                      current.k = current.j;
+                      if (current.k * 2 >= current.N -1){
+                          //结束当前元素的下沉
+                          current.firstK--;
+                      } else {
+                          current.j = current.k * 2 + 1;
+                          current.childrenIsLess=false;
+                          return;
+                      }
+                  }
+                  if (current.firstK<0){
+                      //堆下沉结束
+                      current.heapIsSort = true;
+                  } else {
+                      current.k = current.firstK;
+                      current.j = current.k * 2 + 1;
+                      current.childrenIsLess=false;
+                  }
                 }
                 this.menuKey++;
             },

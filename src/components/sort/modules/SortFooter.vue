@@ -155,6 +155,28 @@ private static void sort(Comparable[] a,int lo,int hi){
 }
                 </pre>
           </code>
+          <code v-else-if="method==='heap'" >
+                <pre>
+public static void sort(Comparable[] a){
+  int N = a.length;
+  for(int k = N/2;k>=1;k--) sink(a,k,N);
+  while(N>1){
+    exch(a,1,N--);
+    sink(a,1,N);
+  }
+}
+private void sink(Comparable[] a,int k,int N){
+  while(2*k<=N){
+    int j = 2*k;
+    if(j < N && less(j,j+1)) j++;
+    if(!less(k,j)) break;
+    exch(k,j);
+    k = j;
+  }
+}
+
+                </pre>
+          </code>
         </div>
       </el-card>
     </el-col>
@@ -273,20 +295,8 @@ private static void sort(Comparable[] a,int lo,int hi){
                 this.$emit("clear");
             },
             getSpan(){
-                if (this.method === "select"){
-                  return 12;
-                } else if (this.method === "insert") {
-                    return 12;
-                } else if (this.method === "shell") {
-                    return 12;
-                } else if (this.method === "quick") {
+                if (this.method === "quick" || this.method === "quick3way" || this.method === "merge") {
                     return 8;
-                } else if (this.method === "quick3way"){
-                    return 8;
-                } else if (this.method === "merge"){
-                    return 8;
-                } else if (this.method === "mergeBU"){
-                    return 12;
                 }
                 return 12;
             },

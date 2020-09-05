@@ -1,12 +1,12 @@
 <template>
   <el-row style="text-align: center;">
-    <el-tag style="margin-bottom: 20px;" :type="getType(index)" ref="parent" @mouseover.native="show" @mouseout.native="hide">{{ items[index] }}</el-tag>
+    <el-tag :size="getSize()" style="margin-bottom: 20px;" :type="getType(index)" ref="parent" @mouseover.native="show" @mouseout.native="hide">{{ items[index] }}</el-tag>
     <el-row v-if="hasLeft">
       <el-col :span="12" v-if="hasLeft">
-        <node :items="items" :index="index * 2 + 1" ref="left"></node>
+        <node :sort-state="sortState" :current="current" :items="items" :index="index * 2 + 1" ref="left"></node>
       </el-col>
       <el-col :span="12" v-if="hasRight">
-        <node :items="items" :index="index * 2 + 2" ref="right"></node>
+        <node :sort-state="sortState" :current="current" :items="items" :index="index * 2 + 2" ref="right"></node>
       </el-col>
     </el-row>
   </el-row>
@@ -18,7 +18,9 @@
         name: "node"
         ,props: {
             items: Array,
-            index: Number
+            index: Number,
+            sortState: Number,
+            current:Object
         }
         ,data() {
             return {
@@ -43,6 +45,16 @@
             }
         }
         ,methods :{
+            getSize(){
+                const size = this.$store.state.size;
+                if (size === 'xs'){
+                    return "mini"
+                } else if (size === 'xl'){
+                    return "medium"
+                } else {
+                    return "small"
+                }
+            },
             show(){
               if (this.hasLeft){
                 this.left.show();
@@ -61,20 +73,21 @@
                 }
             },
             getType(index){
-                // if (this.sortState === 0){
-                //     return 'info'
-                // } else if (this.sortState === 3){
-                //     return 'success';
-                // }else {
-                //     if (index === this.current.min){
-                //         return 'warning';
-                //     } else if (index === this.current.outside || index === this.current.inner) {
-                //         return 'danger';
-                //     } else {
-                //         return "info";
-                //     }
-                // }
-                return 'success';
+                if (this.sortState === 0){
+                    return 'info'
+                } else if (this.sortState === 3){
+                    return 'success';
+                }else {
+                    if (index === this.current.k){
+                        return 'warning';
+                    } else if (index === this.current.j) {
+                        return 'danger';
+                    } else if (index >= this.current.N){
+                        return 'success';
+                    } else {
+                        return "info";
+                    }
+                }
             }
         }
         ,computed:{
