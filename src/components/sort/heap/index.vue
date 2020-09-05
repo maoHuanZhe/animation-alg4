@@ -138,37 +138,36 @@
                     //判断堆是否有序
                     if (!current.heapIsSort){
                         //堆未排序
-                        this.textArr.unshift('堆未排序');
                         //判断是否比较两个子元素
                         if (current.childrenIsLess){
                             //子元素已比较
-                            this.textArr.unshift('子元素已比较');
                             //比较当前下沉元素与子元素
                             if (less(this.items[current.k],this.items[current.j])){
-                                this.textArr.unshift('交换');
+                                this.textArr.unshift('下沉元素与较大子元素交换');
                                 //当前下沉元素小于子元素
                                 //交换
                                 exch(this.items,current.k,current.j);
                                 this.changeCurrent(false);
                             } else {
-                                this.textArr.unshift('结束下沉');
+                                this.textArr.unshift('本次下沉结束');
                                 //当前下沉元素不小于子元素
                                 // 结束下沉
                                 this.changeCurrent(true);
                             }
                         } else {
-                            this.textArr.unshift('子元素未比较');
                             //子元素未比较 比较两个子元素
                             if (current.j < current.N -1 && less(this.items[current.j],this.items[current.j+1])){
                                 this.textArr.unshift('当前子元素小于另一个元素');
                                 //当前子元素小于另一个元素
                                 current.j++;
                                 this.menuKey++;
+                            } else {
+                                this.textArr.unshift('当前子元素不小于另一个元素');
                             }
                             current.childrenIsLess = true;
                         }
                     } else {
-                        this.textArr.unshift('堆已排序');
+                        this.textArr.unshift('将根节点交换到当前数组末尾');
                         //堆已排序
                         exch(this.items,0,--current.N);
                         if (current.N>1){
@@ -178,7 +177,8 @@
                             current.heapIsSort = false;
                             current.childrenIsLess = false;
                         } else {
-                            current = {};
+                            this.textArr.unshift('排序完成');
+                            this.current = {};
                             this.sortState = 3;
                             this.stop();
                         }
