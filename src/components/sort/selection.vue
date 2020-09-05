@@ -21,44 +21,8 @@
     <el-main>
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="select" :demo-tag="demoTag" :sort-state="sortState" />
     </el-main>
-    <el-footer height="290px">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header" style="text-align: center">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header" style="text-align: center">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-for(int i = 0;i < arr.size(); i++;){
-  for(int j = i + 1; j< arr.size(); j++;){
-    int min = i;
-    if(less(arr[j],arr[min]){
-      min = j;
-    }
-  }
-  exch(arr,i,min);
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="select" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -68,11 +32,13 @@ for(int i = 0;i < arr.size(); i++;){
     import {PlainDraggable} from "../../util/plain-draggable-limit.min"
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
+    import SortFooter from "./modules/SortFooter";
     export default {
         name: "selection"
         ,components: {
             SortHeader,
-            SortMain
+            SortMain,
+            SortFooter
         }
         ,data() {
             return {
@@ -116,13 +82,6 @@ for(int i = 0;i < arr.size(); i++;){
         },
         methods:{
           sort(){
-              if (this.items.length <= 0){
-                  this.$message({
-                      message: '数组为空',
-                      type: 'warning'
-                  });
-                  return;
-              }
               this.intervalID = setInterval(()=>{
                   this.step();
               },1000 - this.intervalTime*10);

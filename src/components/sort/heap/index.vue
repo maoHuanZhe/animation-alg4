@@ -1,78 +1,29 @@
 <template>
   <el-container>
     <el-header>
-      <el-row :gutter="10">
-        <el-col :span="12">
-          <el-input
-              placeholder="输入一个数字或以逗号相隔的数组"
-              v-model="imput"
-              @blur="create"
-              clearable>
-          </el-input>
-        </el-col>
-        <el-col :span="10">
-          <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==''">开始</el-button>
-          <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
-          <el-button type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
-          <el-button type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
-          <el-button type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
-        </el-col>
-        <el-col :span="2">
-          <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
-        </el-col>
-      </el-row>
+      <SortHeader
+          :current="current"
+          :items="items"
+          :interval-i-d="intervalID"
+          :interval-time="intervalTime"
+          :old-arr="oldArr"
+          :sort-state="sortState"
+          :text-arr="textArr"
+          @step="step"
+          @stop="stop"
+          @refresh="refresh"
+          @create="create"
+          @changeInterval="changeInterval"
+          @finished="finished"
+          @sort="sort"
+      ></SortHeader>
     </el-header>
     <el-main>
-      <el-row :gutter="20">
-        <el-col :span="4">
-          <el-tag type="info" >未排序元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="danger" >比较元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="success" >已排序元素</el-tag>
-        </el-col>
-      </el-row>
       <div :key="menuKey">
-        <node :items="items" :index="0"></node>
+        <node v-if="items.length > 0" :items="items" :index="0"></node>
       </div>
     </el-main>
     <el-footer height="290px">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              原数组：{{oldArr.join(',')}}
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-for(int i = 1;i < arr.size(); i++;){
-  for(int j = i; j > 0 && less(a[j-1],a[j]); j--;){
-    exch(arr,j,j-1);
-  }
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
     </el-footer>
   </el-container>
 </template>
@@ -80,10 +31,12 @@ for(int i = 1;i < arr.size(); i++;){
 <script>
     import node from "./node"
     import {exch, less, createArr} from "../../../util/util";
+    import SortHeader from "../modules/SortHeader";
     export default {
         name: "selection"
         ,components : {
-            node
+            node,
+            SortHeader
         }
         ,data() {
             return {
@@ -111,7 +64,7 @@ for(int i = 1;i < arr.size(); i++;){
                 //控制台数组
                 ,textArr:[]
                 //定时器编号
-                ,intervalID:''
+                ,intervalID:-1
                 //定时器速度
                 ,intervalTime:50
             }
@@ -231,9 +184,9 @@ for(int i = 1;i < arr.size(); i++;){
                 this.menuKey++;
             },
             //创建数组
-            create(){
+            create(imput){
                 this.refresh();
-                createArr(this.imput,this.items);
+                createArr(imput,this.items);
             },
             clear(){
                 this.textArr = [];
@@ -248,7 +201,7 @@ for(int i = 1;i < arr.size(); i++;){
             //暂停按钮
             stop(){
                 clearInterval(this.intervalID);
-                this.intervalID = '';
+                this.intervalID = -1;
             },
             changeInterval(){
                 this.stop();
@@ -277,11 +230,5 @@ for(int i = 1;i < arr.size(); i++;){
 </script>
 
 <style scoped>
-  .currentNum{
-    color: red;
-  }
-  .consoleDiv{
-    height: 210px;
-    overflow: auto;
-  }
+
 </style>

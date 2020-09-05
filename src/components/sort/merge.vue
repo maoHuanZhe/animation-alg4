@@ -47,89 +47,8 @@
         </el-col>
       </el-row>
     </el-main>
-    <el-footer height="460px">
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-private static Comparable[] aux;
-public static void sort(Comparable[] a){
-  aux = new Comparable[a.length];
-  sort(a,0,a.length-1);
-}
-private static void sort(Comparable[] a,int lo,int hi){
-  if(lo >= hi)  return;
-  int mid = lo + (hi -lo)/2;
-  sort(a,lo,mid);
-  sort(a,mid+1,hi);
-  merge(a,lo,mid,hi);
-}
-private static void merge(Comparable[] a,int lo,int mid,int hi){
-  int i = lo;
-  int j = mid + 1;
-  for(int k = lo;k<=hi;k++) aux[k] = a[k];
-  for(int k = lo;k<=hi;k++){
-    if(i>mid) a[k] = aux[j++];
-    else if(j>hi) a[k] = aux[i++];
-    else if(less(aux[i],aux[j]) a[k] = aux[i++];
-    else a[k] = aux[j++];
-  }
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>函数栈</span>
-            </div>
-            <div class="consoleDiv">
-              <el-row :gutter="5">
-                <el-col :span="8">
-                  <el-tag type="danger">lo</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag type="danger">mid</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag type="danger">hi</el-tag>
-                </el-col>
-              </el-row>
-              <el-row :gutter="5" v-for="(args, index) in stack" :style="getStyle(index)">
-                <el-col :span="8">
-                  <el-tag>{{args.lo}}</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag>{{args.mid}}</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag>{{args.hi}}</el-tag>
-                </el-col>
-              </el-row>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="merge" :stack="stack" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -138,11 +57,13 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
     import {less, createArr} from "../../util/util";
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
+    import SortFooter from "./modules/SortFooter";
     export default {
         name: "merge"
         ,components:{
             SortHeader,
-            SortMain
+            SortMain,
+            SortFooter
         }
         ,data() {
             return {
@@ -239,6 +160,7 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
                         message: '排序已经完成',
                         type: 'warning'
                     });
+                    this.stop();
                 }
             },
             getStack(){

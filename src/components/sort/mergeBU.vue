@@ -47,53 +47,8 @@
         </el-col>
       </el-row>
     </el-main>
-    <el-footer height="460px">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-private static Comparable[] aux;
-public static void sort(Comparable[] a){
-  int N = a.length;
-  aux = new Comparable[N];
-  for(int sz = 1;sz < N;sz *= 2){
-    for(int lo = 0; lo < N -sz; lo += 2*sz){
-      merge(a,lo,lo+sz-1,Math.min(lo+2*sz-1,N-1));
-}
-private static void merge(Comparable[] a,int lo,int mid,int hi){
-  int i = lo;
-  int j = mid + 1;
-  for(int k = lo;k<=hi;k++) aux[k] = a[k];
-  for(int k = lo;k<=hi;k++){
-    if(i>mid) a[k] = aux[j++];
-    else if(j>hi) a[k] = aux[i++];
-    else if(less(aux[i],aux[j]) a[k] = aux[i++];
-    else a[k] = aux[j++];
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="mergeBU" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -102,11 +57,13 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
     import {less, createArr} from "../../util/util";
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
+    import SortFooter from "./modules/SortFooter";
     export default {
         name: "mergeBU"
         ,components:{
             SortHeader,
-            SortMain
+            SortMain,
+            SortFooter
         }
         ,data() {
             return {
@@ -206,6 +163,7 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
                         message: '排序已经完成',
                         type: 'warning'
                     });
+                    this.stop();
                 }
             },
             changeAux(){

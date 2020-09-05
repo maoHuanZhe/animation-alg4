@@ -21,46 +21,8 @@
     <el-main>
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="shell" :demo-tag="demoTag" :sort-state="sortState" />
     </el-main>
-    <el-footer height="290px">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-int N = a.length;
-int h = 1;
-while(h < N/3) h = 3*h + 1;
-while(h >= 1) {
-  for(int i = h;i < arr.size(); i++;){
-    for(int j = i; j >=h && less(a[j-h],a[j]); j-=h;){
-      exch(arr,j,j-h);
-    }
-  }
-  h/=3;
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="shell" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -70,11 +32,13 @@ while(h >= 1) {
     import {PlainDraggable} from "../../util/plain-draggable-limit.min";
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
+    import SortFooter from "./modules/SortFooter";
     export default {
         name: "selection"
         ,components:{
             SortHeader,
-            SortMain
+            SortMain,
+            SortFooter
         }
         ,data() {
             return {

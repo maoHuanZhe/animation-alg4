@@ -21,88 +21,8 @@
     <el-main>
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="quick3way" :demo-tag="demoTag" :sort-state="sortState" :now="now" />
     </el-main>
-    <el-footer height="460px">
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-public static void sort(Comparable[] a){
-  sort(a,0,a.length-1);
-}
-private static void sort(Comparable[] a,int lo,int hi){
-  if(lo >= hi)  return;
-  int lt = lo,i = lo + 1,gt = hi;
-  Comparable v = a[lo];
-  while(i<=gt){
-    int cmp = a[i].compareTo(v);
-    if(cmp < 0) exch(a,i++,lt++);
-    else if(cmp > 0) exch(a,i,gt--);
-    else i++;
-  }
-  sort(a,lo,lt - 1)
-  sort(a,gt + 1,hi);
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>函数栈</span>
-            </div>
-            <div class="consoleDiv">
-              <el-row :gutter="5">
-                <el-col :span="6">
-                  <el-tag type="danger">lo</el-tag>
-                </el-col>
-                <el-col :span="6">
-                  <el-tag type="danger">lt</el-tag>
-                </el-col>
-                <el-col :span="6">
-                  <el-tag type="danger">gt</el-tag>
-                </el-col>
-                <el-col :span="6">
-                  <el-tag type="danger">hi</el-tag>
-                </el-col>
-              </el-row>
-              <el-row :gutter="5" v-for="(args, index) in stack" :style="getStyle(index)">
-                <el-col :span="6">
-                  <el-tag>{{args.lo}}</el-tag>
-                </el-col>
-                <el-col :span="6">
-                  <el-tag>{{args.lt}}</el-tag>
-                </el-col>
-                <el-col :span="6">
-                  <el-tag>{{args.gt}}</el-tag>
-                </el-col>
-                <el-col :span="6">
-                  <el-tag>{{args.hi}}</el-tag>
-                </el-col>
-              </el-row>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="quick3way" :stack="stack" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -112,11 +32,13 @@ private static void sort(Comparable[] a,int lo,int hi){
     import {PlainDraggable} from "../../util/plain-draggable-limit.min";
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
+    import SortFooter from "./modules/SortFooter";
     export default {
         name: "quick3way"
         ,components: {
             SortHeader,
-            SortMain
+            SortMain,
+            SortFooter
         }
         ,data() {
             return {

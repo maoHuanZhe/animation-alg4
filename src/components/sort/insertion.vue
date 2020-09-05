@@ -21,40 +21,8 @@
     <el-main>
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="insert" :demo-tag="demoTag" :sort-state="sortState" />
     </el-main>
-    <el-footer height="290px">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-for(int i = 1;i < arr.size(); i++;){
-  for(int j = i; j > 0 && less(a[j-1],a[j]); j--;){
-    exch(arr,j,j-1);
-  }
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="insert" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -64,11 +32,13 @@ for(int i = 1;i < arr.size(); i++;){
     import {PlainDraggable} from "../../util/plain-draggable-limit.min"
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
+    import SortFooter from "./modules/SortFooter";
     export default {
         name: "selection"
         ,components:{
             SortHeader,
-            SortMain
+            SortMain,
+            SortFooter
         }
         ,data() {
             return {
@@ -117,12 +87,6 @@ for(int i = 1;i < arr.size(); i++;){
                         type: 'warning'
                     });
                     return;
-                }
-                //判断排序状态
-                if (this.sortState === 0){
-                    //未排序状态
-                    //设置排序状态为开始排序
-                    this.sortState = 1;
                 }
                 this.intervalID = setInterval(()=>{
                     this.step();
@@ -177,6 +141,7 @@ for(int i = 1;i < arr.size(); i++;){
                         message: '排序已经完成',
                         type: 'warning'
                     });
+                    this.stop();
                 }
             },
             /**

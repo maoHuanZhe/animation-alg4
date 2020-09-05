@@ -21,88 +21,8 @@
     <el-main>
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="quick" :demo-tag="demoTag" :sort-state="sortState" :now="now" />
     </el-main>
-    <el-footer height="460px">
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-public static void sort(Comparable[] a){
-  sort(a,0,a.length-1);
-}
-private static void sort(Comparable[] a,int lo,int hi){
-  if(lo >= hi)  return;
-  int j = pratition(a,lo,hi);
-  sort(a,lo,j-1)
-  sort(a,j+1,hi);
-}
-private static int pratition(Comparable[] a,int lo,int mid,int hi){
-  int i = lo;
-  int j = hi + 1;
-  Comparable v = a[lo];
-  while(true){
-    while(less(a[++i],v)) if(i == hi) break;
-    while(less(v,a[--j])) if(j == lo) break;
-    if(i>=j) break;
-    exch(a,i,j);
-  }
-  exch(a,lo,j);
-  return j;
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>函数栈</span>
-            </div>
-            <div class="consoleDiv">
-              <el-row :gutter="5">
-                <el-col :span="8">
-                  <el-tag type="danger">lo</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag type="danger">j</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag type="danger">hi</el-tag>
-                </el-col>
-              </el-row>
-              <el-row :gutter="5" v-for="(args, index) in stack" :style="getStyle(index)">
-                <el-col :span="8">
-                  <el-tag>{{args.lo}}</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag>{{args.j}}</el-tag>
-                </el-col>
-                <el-col :span="8">
-                  <el-tag>{{args.hi}}</el-tag>
-                </el-col>
-              </el-row>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+    <el-footer>
+      <SortFooter :text-arr="textArr" method="quick" :stack="stack" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -112,11 +32,13 @@ private static int pratition(Comparable[] a,int lo,int mid,int hi){
     import {PlainDraggable} from "../../util/plain-draggable-limit.min";
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
+    import SortFooter from "./modules/SortFooter";
     export default {
         name: "quick"
         ,components: {
             SortHeader,
-            SortMain
+            SortMain,
+            SortFooter
         }
         ,data() {
             return {
@@ -297,11 +219,6 @@ private static int pratition(Comparable[] a,int lo,int mid,int hi){
                 }
             },90 - this.intervalTime);
         },
-            getStyle(index){
-              if (index === 0){
-                  return "margin-top: 5px;background-color: lightsteelblue;";
-              }
-            },
             /**
              * 改变当前值
              * @param flag 是否结束当前循环
