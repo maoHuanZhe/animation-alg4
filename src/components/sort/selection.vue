@@ -267,8 +267,4 @@
 
 <style scoped>
 
-  .consoleDiv{
-    height: 210px;
-    overflow: auto;
-  }
 </style>

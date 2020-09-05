@@ -276,9 +276,4 @@
   .tagClass{
     margin: 10px;
   }
-  .consoleDiv{
-    height: 315px;
-    overflow: auto;
-    text-align: left;
-  }
 </style>

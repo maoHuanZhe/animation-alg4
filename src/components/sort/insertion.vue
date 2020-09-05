@@ -267,12 +267,5 @@
 </script>
 
 <style scoped>
-  .tagClass{
-    margin: 10px;
-    width: 45px;
-  }
-  .consoleDiv{
-    height: 210px;
-    overflow: auto;
-  }
+
 </style>
