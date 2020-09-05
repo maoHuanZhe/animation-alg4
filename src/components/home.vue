@@ -46,7 +46,16 @@
       </transition>
     </el-main>
     <el-footer style="text-align: center;">
-      <el-link type="info" href="http://beian.miit.gov.cn/" target="_blank">皖ICP备2020015593号</el-link>
+      <!--      备案号      -->
+      <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank">皖ICP备2020015593号</el-link>
+      <!--      csdn      -->
+      <el-link :underline="false" type="info" href="https://blog.csdn.net/qq_39016934" target="_blank"><i class="iconfont">&#xe601;</i></el-link>
+      <!--      github      -->
+      <el-link :underline="false" type="info" href="https://github.com/maoHuanZhe/animation-alg4" target="_blank"><i class="iconfont">&#xe600;</i></el-link>
+      <!--      qq      -->
+      <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank"><i class="iconfont">&#xe631;</i></el-link>
+      <!--      weixin      -->
+      <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank"><i class="iconfont">&#xe632;</i></el-link>
     </el-footer>
     <el-drawer
         :visible.sync="drawer"
@@ -110,6 +119,21 @@
 </script>
 
 <style scoped>
+  @font-face {
+    font-family: 'iconfont';  /* project id 2047640 */
+    src: url('//at.alicdn.com/t/font_2047640_aq84d5tg0s4.eot');
+    src: url('//at.alicdn.com/t/font_2047640_aq84d5tg0s4.eot?#iefix') format('embedded-opentype'),
+    url('//at.alicdn.com/t/font_2047640_aq84d5tg0s4.woff2') format('woff2'),
+    url('//at.alicdn.com/t/font_2047640_aq84d5tg0s4.woff') format('woff'),
+    url('//at.alicdn.com/t/font_2047640_aq84d5tg0s4.ttf') format('truetype'),
+    url('//at.alicdn.com/t/font_2047640_aq84d5tg0s4.svg#iconfont') format('svg');
+  }
+  .iconfont{
+    font-family:"iconfont" !important;
+    font-size:25px;font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;}
   .drawer-container {
     padding: 24px;
     font-size: 14px;
