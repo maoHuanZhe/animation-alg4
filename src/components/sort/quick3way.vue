@@ -1,63 +1,71 @@
 <template>
   <el-container>
     <el-header>
-      <el-row :gutter="10">
-        <el-col :span="12">
-          <el-input
-              placeholder="输入一个数字或以逗号相隔的数组"
-              v-model="imput"
-              @blur="create"
-              clearable>
-          </el-input>
-        </el-col>
-        <el-col :span="2">
-          <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==''">开始</el-button>
-        </el-col>
-        <el-col :span="1">
-          <el-checkbox v-model="hasAnimation" style="line-height: 40px;">动画</el-checkbox>
-        </el-col>
-        <el-col :span="7" v-if="!hasAnimation">
-          <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
-          <el-button type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
-          <el-button type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
-          <el-button type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
-        </el-col>
-        <el-col :span="2" v-if="!hasAnimation">
-          <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
-        </el-col>
-      </el-row>
+      <SortHeader
+          :current="current"
+          :items="items"
+          :interval-i-d="intervalID"
+          :interval-time="intervalTime"
+          :old-arr="oldArr"
+          :sort-state="sortState"
+          :text-arr="textArr"
+          @step="step"
+          @stop="stop"
+          @refresh="refresh"
+          @create="create"
+          @changeInterval="changeInterval"
+          @finished="finished"
+          @sort="sort"
+      ></SortHeader>
     </el-header>
     <el-main>
+      <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="quick3way" :demo-tag="demoTag" :sort-state="sortState" :now="now" />
+    </el-main>
+    <el-footer height="460px">
       <el-row :gutter="20">
-        <el-col :span="4">
-          <el-tag type="info" >未排序元素</el-tag>
+        <el-col :span="8">
+          <el-card class="box-card" shadow="hover">
+            <div slot="header">
+              <span>console</span>
+              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
+            </div>
+            <div class="consoleDiv" style="text-align: left;">
+              <div v-for="(text,index) in textArr" :key="index">
+                <el-link :underline="false" type="primary">{{text}}</el-link>
+              </div>
+            </div>
+          </el-card>
         </el-col>
-        <el-col :span="4">
-          <el-tag type="warning" >当前切分的元素范围</el-tag>
+        <el-col :span="8">
+          <el-card class="box-card" shadow="hover">
+            <div slot="header">
+              <span>code</span>
+            </div>
+            <div class="consoleDiv">
+              <code>
+                <pre>
+public static void sort(Comparable[] a){
+  sort(a,0,a.length-1);
+}
+private static void sort(Comparable[] a,int lo,int hi){
+  if(lo >= hi)  return;
+  int lt = lo,i = lo + 1,gt = hi;
+  Comparable v = a[lo];
+  while(i<=gt){
+    int cmp = a[i].compareTo(v);
+    if(cmp < 0) exch(a,i++,lt++);
+    else if(cmp > 0) exch(a,i,gt--);
+    else i++;
+  }
+  sort(a,lo,lt - 1)
+  sort(a,gt + 1,hi);
+}
+                </pre>
+              </code>
+            </div>
+          </el-card>
         </el-col>
-        <el-col :span="4">
-          <el-tag >等于切分元素的元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="warning" effect="dark" >当前切分的元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="danger" >左侧元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="danger" effect="dark" >右侧元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="success" >已排序元素</el-tag>
-        </el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="18">
-          <div :key="menuKey" style="background-color: gray;" ref="main">
-            <el-tag class="tagClass" :ref="'tag'+index" :type="getType(index)" v-for="(item,index) in items" :key="item + '-' + index">{{item}}</el-tag>
-          </div>
-        </el-col>
-        <el-col :span="6" v-if="stack.length > 0">
+        <el-col :span="8">
           <el-card class="box-card" shadow="hover">
             <div slot="header">
               <span>函数栈</span>
@@ -95,52 +103,6 @@
           </el-card>
         </el-col>
       </el-row>
-    </el-main>
-    <el-footer height="460px">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>console</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
-            </div>
-            <div class="consoleDiv" style="text-align: left;">
-              <div v-for="(text,index) in textArr" :key="index">
-                <el-link :underline="false" type="primary">{{text}}</el-link>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card class="box-card" shadow="hover">
-            <div slot="header">
-              <span>code</span>
-            </div>
-            <div class="consoleDiv">
-              <code>
-                <pre>
-public static void sort(Comparable[] a){
-  sort(a,0,a.length-1);
-}
-private static void sort(Comparable[] a,int lo,int hi){
-  if(lo >= hi)  return;
-  int lt = lo,i = lo + 1,gt = hi;
-  Comparable v = a[lo];
-  while(i<=gt){
-    int cmp = a[i].compareTo(v);
-    if(cmp < 0) exch(a,i++,lt++);
-    else if(cmp > 0) exch(a,i,gt--);
-    else i++;
-  }
-  sort(a,lo,lt - 1)
-  sort(a,gt + 1,hi);
-}
-                </pre>
-              </code>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
     </el-footer>
   </el-container>
 </template>
@@ -148,12 +110,25 @@ private static void sort(Comparable[] a,int lo,int hi){
 <script>
     import {createArr, exch} from "../../util/util";
     import {PlainDraggable} from "../../util/plain-draggable-limit.min";
+    import SortHeader from "./modules/SortHeader";
+    import SortMain from "./modules/SortMain";
     export default {
-        name: "merge"
+        name: "quick3way"
+        ,components: {
+            SortHeader,
+            SortMain
+        }
         ,data() {
             return {
-                imput: ''
-                ,menuKey:1
+                demoTag:[
+                    {text:"未排序元素",type:"info",effect:"plain"},
+                    {text:"当前切分的元素范围",type:"warning",effect:"plain"},
+                    {text:"等于切分元素的元素",type:"",effect:"plain"},
+                    {text:"当前切分的元素",type:"warning",effect:"dark"},
+                    {text:"左侧元素",type:"danger",effect:"plain"},
+                    {text:"右侧元素",type:"danger",effect:"dark"},
+                ],
+                menuKey:1
                 //当前值
                 ,current: {
                     //左侧下标
@@ -180,13 +155,9 @@ private static void sort(Comparable[] a,int lo,int hi){
                 //控制台数组
                 ,textArr:[]
                 //定时器编号
-                ,intervalID:''
+                ,intervalID:-1
                 //定时器速度
                 ,intervalTime:50
-                //是否有动画
-                ,hasAnimation:false
-                //一行有几个元素
-                ,lineNum: 0
             }
         },
         methods:{
@@ -240,8 +211,6 @@ private static void sort(Comparable[] a,int lo,int hi){
                             this.changeCurrent();
                             this.menuKey++;
                         }
-                        this.changeCurrent();
-                        this.menuKey++;
                     }else {
                         this.textArr.unshift("当前元素等于切分元素");
                         current.i++;
@@ -258,44 +227,44 @@ private static void sort(Comparable[] a,int lo,int hi){
                 }
             }
             ,animation(a,b){
-            this.stop();
-            //a所在的行
-            const a_row = Math.floor(a/this.lineNum);
-            //a所在的列
-            const a_col = Math.floor(a%this.lineNum);
-            //b所在的行
-            const b_row = Math.floor(b/this.lineNum);
-            //b所在的列
-            const b_col = Math.floor(b%this.lineNum);
-            let draggable_a = new PlainDraggable(this.$refs['tag'+a][0].$el);
-            let draggable_b = new PlainDraggable(this.$refs['tag'+b][0].$el);
-            draggable_a.top += (10 + (b_row - a_row)*52);
-            draggable_b.top -= (10 + (b_row - a_row)*52);
-            let conut = 1;
-            const row = (b_col - a_col)*65;
-            this.intervalIDanimation = setInterval(()=>{
-                if (conut === 10){
-                    draggable_a.left += row - 9*Math.floor(row/10);
-                    draggable_b.left -= row - 9*Math.floor(row/10);
-                    draggable_a.top -= 10;
-                    draggable_b.top += 10;
-                    draggable_a.remove();
-                    draggable_b.remove();
-                    exch(this.items,a,b);
-                    this.changeCurrent();
-                    this.menuKey++;
-                    clearInterval(this.intervalIDanimation);
-                    this.intervalIDanimation = '';
-                    if (this.sortState !== 3){
-                        this.sort();
+                this.stop();
+                //a所在的行
+                const a_row = Math.floor(a/this.lineNum);
+                //a所在的列
+                const a_col = Math.floor(a%this.lineNum);
+                //b所在的行
+                const b_row = Math.floor(b/this.lineNum);
+                //b所在的列
+                const b_col = Math.floor(b%this.lineNum);
+                let draggable_a = new PlainDraggable(this.$refs.main.$refs['tag'+a][0].$el);
+                let draggable_b = new PlainDraggable(this.$refs.main.$refs['tag'+b][0].$el);
+                draggable_a.top += (10 + (b_row - a_row)*52);
+                draggable_b.top -= (10 + (b_row - a_row)*52);
+                let conut = 1;
+                const row = (b_col - a_col)*65;
+                this.intervalIDanimation = setInterval(()=>{
+                    if (conut === 10){
+                        draggable_a.left += row - 9*Math.floor(row/10);
+                        draggable_b.left -= row - 9*Math.floor(row/10);
+                        draggable_a.top -= 10;
+                        draggable_b.top += 10;
+                        draggable_a.remove();
+                        draggable_b.remove();
+                        exch(this.items,a,b);
+                        this.changeCurrent();
+                        this.menuKey++;
+                        clearInterval(this.intervalIDanimation);
+                        this.intervalIDanimation = '';
+                        if (this.sortState !== 3){
+                            this.sort();
+                        }
+                    }else {
+                        draggable_a.left += Math.floor(row/10);
+                        draggable_b.left -= Math.floor(row/10);
+                        conut++
                     }
-                }else {
-                    draggable_a.left += Math.floor(row/10);
-                    draggable_b.left -= Math.floor(row/10);
-                    conut++
-                }
-            },90 - this.intervalTime);
-        }
+                },90 - this.intervalTime);
+            }
             ,getType(index){
                 if (this.sortState === 0){
                     return 'info'
@@ -369,9 +338,9 @@ private static void sort(Comparable[] a,int lo,int hi){
                 this.menuKey++;
             },
             //创建数组
-            create(){
+            create(imput){
                 this.refresh();
-                createArr(this.imput,this.items);
+                createArr(imput,this.items);
             },
             clear(){
                 this.textArr = [];
@@ -386,7 +355,7 @@ private static void sort(Comparable[] a,int lo,int hi){
             //暂停按钮
             stop(){
                 clearInterval(this.intervalID);
-                this.intervalID = '';
+                this.intervalID = -1;
             },
             changeInterval(){
                 this.stop();
@@ -411,15 +380,15 @@ private static void sort(Comparable[] a,int lo,int hi){
             isSort() {
                 return this.sortState === 3;
             },
+            hasAnimation(){
+                return this.$store.state.hasAnimation;
+            },
+            lineNum(){
+                return this.$store.state.lineNum;
+            },
             now(){
                 return this.stack[0];
             }
-        }
-        ,mounted() {
-            //获取页面宽度
-            const mainWidth =  this.$refs.main.clientWidth
-            //计算每行会有几个元素
-            this.lineNum = Math.floor(mainWidth/65);
         }
     }
 </script>

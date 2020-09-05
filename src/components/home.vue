@@ -2,37 +2,134 @@
   <el-container id="app" ref="app">
     <el-header>
       <el-menu
-          default-active="1"
+          :default-active="activeMenu()"
           mode="horizontal"
           router>
-        <el-menu-item index="/sort">
-          <span slot="title">排序</span>
-        </el-menu-item>
+        <el-menu-item @click="tools"><i class="el-icon-s-tools"></i></el-menu-item>
+        <el-submenu index="/sort">
+          <template slot="title">排序</template>
+          <el-menu-item index="/selection">
+            <span slot="title">选择排序</span>
+          </el-menu-item>
+          <el-menu-item index="/insertion">
+            <span slot="title">插入排序</span>
+          </el-menu-item>
+          <el-menu-item index="/shell">
+            <span slot="title">希尔排序</span>
+          </el-menu-item>
+          <el-menu-item index="/merge">
+            <span slot="title">归并排序</span>
+          </el-menu-item>
+          <el-menu-item index="/mergeBU">
+            <span slot="title">归并排序2</span>
+          </el-menu-item>
+          <el-menu-item index="/quick">
+            <span slot="title">快速排序</span>
+          </el-menu-item>
+          <el-menu-item index="/quick3way">
+            <span slot="title">三分快速排序</span>
+          </el-menu-item>
+          <el-menu-item index="/heap">
+            <span slot="title">堆排序</span>
+          </el-menu-item>
+        </el-submenu>
         <el-menu-item index="/search">
           <span slot="title">查找</span>
         </el-menu-item>
       </el-menu>
     </el-header>
     <el-main ref="main">
-      <router-view/>
+      <transition name="fade-transform" mode="out-in">
+        <keep-alive>
+          <router-view :key="key" />
+        </keep-alive>
+      </transition>
     </el-main>
-    <el-footer>
+    <el-footer style="text-align: center;">
       <el-link type="info" href="http://beian.miit.gov.cn/" target="_blank">皖ICP备2020015593号</el-link>
     </el-footer>
+    <el-drawer
+        :visible.sync="drawer"
+        direction="ltr"
+        :with-header="false"
+        :size="size">
+      <div class="drawer-container">
+        <div>
+          <h3 class="drawer-title">全局设置</h3>
+
+          <div class="drawer-item">
+            <span>交换动画</span>
+            <el-switch v-model="hasAnimation" class="drawer-switch" />
+          </div>
+
+        </div>
+      </div>
+    </el-drawer>
   </el-container>
 </template>
-
 <script>
     export default {
       name: "home"
+      ,data() {
+          return {
+              drawer: false,
+              size:'300'
+          }
+        }
+      ,methods: {
+        activeMenu() {
+            return this.$route.path;
+        },
+        tools() {
+            this.drawer = true
+        }
+      }
       ,mounted() {
-          //获取浏览器高度
-          const mainHeight = document.documentElement.clientHeight;
-          this.$refs.main.$el.style.height = (mainHeight-120-16) +'px';
+        //获取浏览器高度
+        const mainHeight = document.documentElement.clientHeight;
+        this.$refs.main.$el.style.height = (mainHeight-120-16) +'px';
+        //获取页面宽度
+        const mainWidth =  this.$refs.main.$el.clientWidth - 80;
+        //计算每行会有几个元素
+        this.$store.dispatch('changeState', {key:'lineNum',val:Math.floor(mainWidth/65)})
+      }
+      ,computed: {
+        key() {
+            return this.$route.path
+        }
+        ,hasAnimation: {
+                get() {
+                    return this.$store.state.hasAnimation
+                },
+                set(val) {
+                    this.$store.dispatch('changeState', {key:'hasAnimation',val})
+                }
+            },
       }
     }
 </script>
 
 <style scoped>
+  .drawer-container {
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+  .drawer-title {
+    margin-bottom: 12px;
+    color: rgba(0, 0, 0, .85);
+    font-size: 14px;
+    line-height: 22px;
+  }
 
+  .drawer-item {
+    color: rgba(0, 0, 0, .65);
+    font-size: 14px;
+    padding: 12px 0;
+  }
+
+  .drawer-switch {
+    float: right
+  }
 </style>

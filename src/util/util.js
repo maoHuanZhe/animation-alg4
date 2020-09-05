@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import {PlainDraggable} from "./plain-draggable-limit.min";
 
 /**
  * a是否小于b

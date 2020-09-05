@@ -1,42 +1,25 @@
 <template>
   <el-container>
     <el-header>
-      <el-row :gutter="10">
-        <el-col :span="12">
-          <el-input
-              placeholder="输入一个数字或以逗号相隔的数组"
-              v-model="imput"
-              @blur="create"
-              clearable>
-          </el-input>
-        </el-col>
-        <el-col :span="10">
-          <el-button type="primary" @click="sort" icon="el-icon-video-play" :loading="intervalID!==''">开始</el-button>
-          <el-button type="primary" @click="stop" icon="el-icon-video-pause">暂停</el-button>
-          <el-button type="primary" @click="step" icon="el-icon-video-pause">下一步</el-button>
-          <el-button type="primary" @click="finished" icon="el-icon-finished">跳过</el-button>
-          <el-button type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
-        </el-col>
-        <el-col :span="2">
-          <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
-        </el-col>
-      </el-row>
+      <SortHeader
+          :current="current"
+          :items="items"
+          :interval-i-d="intervalID"
+          :interval-time="intervalTime"
+          :old-arr="oldArr"
+          :sort-state="sortState"
+          :text-arr="textArr"
+          @step="step"
+          @stop="stop"
+          @refresh="refresh"
+          @create="create"
+          @changeInterval="changeInterval"
+          @finished="finished"
+          @sort="sort"
+      ></SortHeader>
     </el-header>
     <el-main>
-      <el-row :gutter="20">
-        <el-col :span="4">
-          <el-tag type="info" >未排序元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="warning" >当前归并的元素范围</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="danger" >当前归并的元素</el-tag>
-        </el-col>
-        <el-col :span="4">
-          <el-tag type="success" >已排序元素</el-tag>
-        </el-col>
-      </el-row>
+      <SortMain  :key="menuKey" :current="current" :items="items" method="mergeBU" :demo-tag="demoTag" :sort-state="sortState"/>
       <el-row :gutter="20">
         <el-col :span="12">
           <el-card class="box-card" shadow="hover">
@@ -63,9 +46,6 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-row :gutter="20" :key="menuKey">
-      <el-tag class="tagClass" :type="getType(index)" v-for="(item,index) in items" :key="item + '-' + index">{{item}}</el-tag>
-    </el-row>
     </el-main>
     <el-footer height="460px">
       <el-row :gutter="20">
@@ -120,11 +100,21 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
 
 <script>
     import {less, createArr} from "../../util/util";
+    import SortHeader from "./modules/SortHeader";
+    import SortMain from "./modules/SortMain";
     export default {
-        name: "merge"
+        name: "mergeBU"
+        ,components:{
+            SortHeader,
+            SortMain
+        }
         ,data() {
             return {
-                imput: ''
+                demoTag:[
+                    {text:"未排序元素",type:"info",effect:"plain"},
+                    {text:"当前归并的元素范围",type:"warning",effect:"plain"},
+                    {text:"当前归并的元素",type:"danger",effect:"plain"}
+                ]
                 ,menuKey:1
                 //当前值
                 ,current: {
@@ -159,7 +149,7 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
                 //控制台数组
                 ,textArr:[]
                 //定时器编号
-                ,intervalID:''
+                ,intervalID:-1
                 //定时器速度
                 ,intervalTime:50
             }
@@ -217,26 +207,6 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
                         type: 'warning'
                     });
                 }
-            },
-            getType(index){
-                if (this.sortState === 0){
-                    return 'info'
-                } else if (this.sortState === 3){
-                    return 'success';
-                }else {
-                    if (index === this.current.k) {
-                        return "danger";
-                    } else if (index >= this.current.lo && index <= this.current.hi) {
-                        return 'warning';
-                    } else {
-                        return "info";
-                    }
-                }
-            },
-            getStyle(index){
-              if (index === 0){
-                  return "margin-top: 5px;background-color: lightsteelblue;";
-              }
             },
             changeAux(){
                 for (let k = this.current.lo;k<=this.current.hi;k++){
@@ -299,9 +269,9 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
                 this.menuKey++;
             },
             //创建数组
-            create(){
+            create(imput){
                 this.refresh();
-                createArr(this.imput,this.items);
+                createArr(imput,this.items);
             },
             clear(){
                 this.textArr = [];
@@ -316,7 +286,7 @@ private static void merge(Comparable[] a,int lo,int mid,int hi){
             //暂停按钮
             stop(){
                 clearInterval(this.intervalID);
-                this.intervalID = '';
+                this.intervalID = -1;
             },
             changeInterval(){
                 this.stop();
