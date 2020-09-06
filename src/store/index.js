@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
     state: {
-        hasAnimation: false,
+        hasAnimation: true,
         lineNum:1,
         size:'xl'
     },
