@@ -18,9 +18,6 @@
             <el-button slot="append" :loading="intervalID !== -1" @click="put" type="primary">添加</el-button>
           </el-input>
         </el-col>
-        <el-col :xs="24" :sm="24" :md="2" :lg="2" :xl="2">
-
-        </el-col>
         <el-col :span="24">
           <el-input v-model="get_key" placeholder="请输入键">
             <el-button slot="append" :loading="intervalID !== -1" @click="get" type="primary">获取</el-button>

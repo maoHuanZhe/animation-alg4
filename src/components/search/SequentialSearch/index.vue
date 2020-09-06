@@ -6,23 +6,19 @@
         <Item :key="itemKey" :now="item" :node="first"></Item>
       </el-row>
       <el-divider content-position="left">操作</el-divider>
-      <el-row>
-        <el-col :xs="12" :sm="12" :md="11" :lg="11" :xl="11">
+      <el-row :gutter="20">
+        <el-col :span="12">
           <el-input v-model="put_key" placeholder="请输入键"></el-input>
         </el-col>
-        <el-col :xs="12" :sm="12" :md="11" :lg="11" :xl="11">
-          <el-input v-model="put_val" placeholder="请输入值"></el-input>
+        <el-col :span="12">
+          <el-input v-model="put_val" placeholder="请输入值">
+            <el-button slot="append" :loading="intervalID !== -1" @click="put" type="primary">添加</el-button>
+          </el-input>
         </el-col>
-        <el-col :xs="24" :sm="24" :md="2" :lg="2" :xl="2">
-          <el-button :loading="intervalID !== -1" @click="put" type="primary">添加</el-button>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :xs="24" :sm="24" :md="22" :lg="22" :xl="22">
-          <el-input v-model="get_key" placeholder="请输入键"></el-input>
-        </el-col>
-        <el-col :xs="24" :sm="24" :md="2" :lg="2" :xl="2">
-          <el-button :loading="intervalID !== -1" @click="get" type="primary">获取</el-button>
+        <el-col :span="24">
+          <el-input v-model="get_key" placeholder="请输入键">
+            <el-button slot="append" :loading="intervalID !== -1" @click="get" type="primary">获取</el-button>
+          </el-input>
         </el-col>
       </el-row>
     </el-main>
@@ -56,8 +52,11 @@
         },
         methods: {
             put(){
-              const key = this.put_key;
-              const val = this.put_val;
+                const key = this.put_key.trim();
+                const val = this.put_val.trim();
+                if (key === "" || val=== ""){
+                    return this.$message("请输入的键和值");
+                }
               this.textArr.unshift("开始添加");
               this.item = this.first;
               this.intervalID = setInterval(()=>{
@@ -83,7 +82,13 @@
               },500);
             },
             get(){
-                const key = this.get_key;
+                if (this.first === null){
+                    return this.$message("链表为空");
+                }
+                const key = this.get_key.trim();
+                if (key === ""){
+                    return this.$message("请输入待获取的键");
+                }
                 this.textArr.unshift("开始获取");
                 this.item = this.first;
                 this.intervalID = setInterval(()=>{
