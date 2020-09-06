@@ -33,9 +33,12 @@
             <span slot="title">堆排序</span>
           </el-menu-item>
         </el-submenu>
-        <el-menu-item index="/search">
-          <span slot="title">查找</span>
-        </el-menu-item>
+        <el-submenu index="/search">
+          <template slot="title">查找</template>
+          <el-menu-item index="/SequentialSearch">
+            <span slot="title">顺序查找</span>
+          </el-menu-item>
+        </el-submenu>
       </el-menu>
     </el-header>
     <el-main ref="main">
@@ -44,16 +47,36 @@
       </transition>
     </el-main>
     <el-footer style="text-align: center;">
-      <!--      备案号      -->
-      <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank">皖ICP备2020015593号</el-link>
       <!--      csdn      -->
-      <el-link :underline="false" type="info" href="https://blog.csdn.net/qq_39016934" target="_blank"><i class="iconfont">&#xe601;</i></el-link>
+      <el-tooltip class="item" effect="dark" content="CSDN地址" placement="top">
+        <el-link :underline="false" type="info" href="https://blog.csdn.net/qq_39016934" target="_blank"><i class="iconfont">&#xe601;</i></el-link>
+      </el-tooltip>
       <!--      github      -->
-      <el-link :underline="false" type="info" href="https://github.com/maoHuanZhe/animation-alg4" target="_blank"><i class="iconfont">&#xe600;</i></el-link>
+      <el-tooltip class="item" effect="dark" content="GitHub地址" placement="top">
+        <el-link :underline="false" type="info" href="https://github.com/maoHuanZhe/animation-alg4" target="_blank"><i class="iconfont">&#xe600;</i></el-link>
+      </el-tooltip>
       <!--      qq      -->
-      <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank"><i class="iconfont">&#xe631;</i></el-link>
+      <el-tooltip class="item" effect="dark" content="QQ联系" placement="top">
+        <el-link :underline="false" type="info" href="http://sighttp.qq.com/authd?IDKEY=5b0c5a703ad65f10c06e40a8f2169b3cd74487c67322f867" target="_blank"><i class="iconfont">&#xe631;</i></el-link>
+      </el-tooltip>
       <!--      weixin      -->
-      <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank"><i class="iconfont">&#xe632;</i></el-link>
+      <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank">
+        <el-popover
+            placement="top-start"
+            width="200"
+            title="加我微信"
+            trigger="hover">
+          <el-image
+              style="width: 200px; height: 200px"
+              :src="fileUrl"
+              fit="fit"></el-image>
+          <i slot="reference" class="iconfont">&#xe632;</i>
+        </el-popover>
+      </el-link><br>
+      <!--      备案号      -->
+      <el-tooltip class="item" effect="dark" content="备案号" placement="top">
+        <el-link :underline="false" type="info" href="http://beian.miit.gov.cn/" target="_blank">皖ICP备2020015593号</el-link>
+      </el-tooltip>
     </el-footer>
     <el-drawer
         :visible.sync="drawer"
@@ -80,7 +103,8 @@
       ,data() {
           return {
               drawer: false,
-              size:'300'
+              size:'300',
+              fileUrl:require('../assets/pic/wchat.jpg')
           }
         }
       ,methods: {
