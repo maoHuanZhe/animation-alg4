@@ -1,6 +1,4 @@
 import Vue from 'vue'
-import {PlainDraggable} from "./plain-draggable-limit.min";
-
 /**
  * a是否小于b
  * @param a
@@ -55,5 +53,22 @@ export function createArr(input,items) {
                 items.push(parseInt(value))
             }
         })
+    }
+}
+export function compareTo(a,b){
+    const lengtha = a.length;
+    const lengthb = b.length;
+    if (lengtha > lengthb) {
+        return 1;
+    } else if (lengtha < lengthb){
+        return  -1;
+    } else {
+        if (a === b){
+            return 0;
+        } else if (a > b){
+            return 1;
+        } else {
+            return -1;
+        }
     }
 }

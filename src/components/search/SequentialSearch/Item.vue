@@ -1,12 +1,10 @@
 <template>
-  <div v-if="node != null">
-    <div  style="display: inline-block;margin-right: 10px;">
+  <div v-if="node != null" style="display: inline">
+    <div  style="display: inline;margin-right: 10px;">
       <el-tag :type="type()" >{{node.key}}</el-tag>
       <el-tag size="mini">{{node.val}}</el-tag>
     </div>
-    <div v-if="node.next != null" style="display: inline-block">
-      <Item :now="now" :node="node.next"></Item>
-    </div>
+    <Item v-if="node.next != null" :now="now" :node="node.next"></Item>
   </div>
 </template>
 

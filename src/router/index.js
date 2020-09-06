@@ -67,6 +67,12 @@ const routes = [
                     title: '顺序查找'
                 }
             }
+            ,{   path: 'BinarySearch'
+                ,component:  () => import('../components/search/BinarySearch/index')
+                ,meta:{
+                    title: '二分查找'
+                }
+            }
         ]
     }
 
