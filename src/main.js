@@ -16,7 +16,7 @@ router.beforeEach((to, from, next) => {
   NProgress.start();
   /* 路由发生变化修改页面title */
   if (to.meta.title) {
-    document.title = to.meta.title
+    document.title = to.meta.title + "-动画算法"
   }
   next()
 })

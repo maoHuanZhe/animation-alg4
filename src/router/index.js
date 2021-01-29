@@ -62,15 +62,21 @@ const routes = [
             }
             //查找模块
             ,{   path: 'SequentialSearch'
-                ,component:  () => import('../components/search/SequentialSearch/index')
+                ,component:  () => import('../components/search/SequentialSearch')
                 ,meta:{
                     title: '顺序查找'
                 }
             }
             ,{   path: 'BinarySearch'
-                ,component:  () => import('../components/search/BinarySearch/index')
+                ,component:  () => import('../components/search/BinarySearch')
                 ,meta:{
                     title: '二分查找'
+                }
+            }
+            ,{   path: 'BST'
+                ,component:  () => import('../components/search/BST')
+                ,meta:{
+                    title: '二叉查找树'
                 }
             }
         ]

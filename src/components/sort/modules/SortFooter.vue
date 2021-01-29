@@ -7,6 +7,11 @@
           <el-button style="float: right; padding: 3px 0" type="text" @click="clear">clear</el-button>
         </div>
         <div class="consoleDiv" style="text-align: left;">
+          <el-row v-if="method === 'select'">
+            <el-col :span="8"><el-tag>i:{{current.outside}}</el-tag></el-col>
+            <el-col :span="8"><el-tag>j:{{current.inner}}</el-tag></el-col>
+            <el-col :span="8"><el-tag>min:{{current.min}}</el-tag></el-col>
+          </el-row>
           <div v-for="(text,index)  in textArr" :key="index">
             <el-link :underline="false" type="primary">{{text}}</el-link>
           </div>
@@ -21,15 +26,14 @@
         <div class="consoleDiv">
           <code v-if="method==='select'">
                 <pre>
-for(int i = 0;i < arr.size(); i++;){
-  for(int j = i + 1; j< arr.size(); j++;){
-    int min = i;
-    if(less(arr[j],arr[min]){
-      min = j;
-    }
-  }
-  exch(arr,i,min);
-}
+<el-link :type="getType(1)" :class="getClass(1)" :underline="false">for(int i = 0;i < arr.size(); i++;){</el-link>
+  <el-link :type="getType(2)" :class="getClass(2)" :underline="false">int min = i;</el-link>
+  <el-link :type="getType(3)" :class="getClass(3)" :underline="false">for(int j = i + 1; j< arr.size(); j++;){</el-link>
+    <el-link :type="getType(4)" :class="getClass(4)" :underline="false">if(less(arr[j],arr[min])</el-link>
+      <el-link :type="getType(5)" :class="getClass(5)" :underline="false">min = j;</el-link>
+  <el-link :underline="false">}</el-link>
+  <el-link :type="getType(6)" :class="getClass(6)" :underline="false">exch(arr,i,min);</el-link>
+<el-link :underline="false">}</el-link>
                 </pre>
           </code>
           <code v-else-if="method==='insert'" >
@@ -288,7 +292,9 @@ private void sink(Comparable[] a,int k,int N){
         props: {
             textArr:Array,
             stack:Array,
-            method:String
+            method:String,
+            line:Number,
+            current:Object
         },
         methods:{
             clear(){
@@ -305,6 +311,24 @@ private void sink(Comparable[] a,int k,int N){
                     return "margin-top: 5px;background-color: lightsteelblue;";
                 }
             },
+            getType(index){
+                if (this.method === "select"){
+                    if (index === this.line){
+                        return "primary"
+                    } else {
+                        return "";
+                    }
+                }
+            },
+            getClass(index){
+                if (this.method === "select"){
+                    if (index === this.line){
+                        return "lineSelected"
+                    } else {
+                        return "";
+                    }
+                }
+            },
         }
     }
 </script>
@@ -313,5 +337,9 @@ private void sink(Comparable[] a,int k,int N){
   .consoleDiv{
     height: 210px;
     overflow: auto;
+  }
+  .lineSelected{
+    font-size: 16px;
+    padding: 5px;
   }
 </style>

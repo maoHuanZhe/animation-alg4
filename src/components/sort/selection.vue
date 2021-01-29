@@ -1,5 +1,10 @@
 <template>
   <el-container>
+    <el-collapse>
+      <el-collapse-item title="文本描述" name="1">
+        <VueMarkdown :source="htmlMD"></VueMarkdown>
+      </el-collapse-item>
+    </el-collapse>
     <el-header>
       <SortHeader
           :current="current"
@@ -22,7 +27,7 @@
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="select" :demo-tag="demoTag" :sort-state="sortState" />
     </el-main>
     <el-footer>
-      <SortFooter :text-arr="textArr" method="select" @clear="clear" />
+      <SortFooter ref="sortFooter" :text-arr="textArr" method="select" :current="current" :line="line" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -33,15 +38,21 @@
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
     import SortFooter from "./modules/SortFooter";
+    import VueMarkdown from "vue-markdown";
+    import axios from "axios"
     export default {
         name: "selection"
         ,components: {
             SortHeader,
             SortMain,
-            SortFooter
+            SortFooter,
+            VueMarkdown
         }
         ,data() {
             return {
+                line:0,
+                resetj:false,
+                htmlMD:'',
                 demoTag:[
                     {text:"未排序元素",type:"info",effect:"plain"},
                     {text:"比较元素",type:"danger",effect:"plain"},
@@ -88,12 +99,14 @@
           }
           ,step: function () {
               let current = this.current;
+              let line = this.line;
               const length = this.items.length;
               if (length <= 0){
                   this.$message({
                       message: '数组为空',
                       type: 'warning'
                   });
+                  this.stop();
                   return;
               }
               //判断排序状态
@@ -102,59 +115,90 @@
                 //设置排序状态为开始排序
                 this.sortState = 1;
                 this.textArr.unshift('开始排序');
+                //复制数组
+                this.items.forEach(((value, index) =>
+                        this.$set(this.oldArr,index,value)
+                ))
                 this.step();
               } else if (this.sortState === 1) {
                   //开始排序状态
+                  this.line++;
                   //设置当前值
-                  current.outside = 0;
-                  current.min = 0;
-                  current.inner = 1;
-                  //复制数组
-                  this.items.forEach(((value, index) =>
-                      this.$set(this.oldArr,index,value)
-                  ))
-                  //设置排序状态为排序中
-                  this.sortState = 2;
+                  if (line === 1){
+                      current.outside = 0;
+                  } else if (line === 2) {
+                      current.min = 0;
+                  } else if (line === 3){
+                      current.inner = 1;
+                      //设置排序状态为排序中
+                      this.sortState = 2;
+                  }
               } else if (this.sortState === 2) {
                   //排序中
-                  //判断外循环
-                  if (current.outside < length){
-                      //判断内循环的值
-                      if (current.inner < length) {
-                          //比较当前内循环的值与最小值 小于就交换
-                          if (less(this.items[current.inner],this.items[current.min])) {
-                              this.textArr.unshift('当前值小于最小值');
-                              current.min = current.inner++;
-                          } else {
-                              this.textArr.unshift('当前值不小于最小值');
-                              current.inner++;
-                          }
-                          this.menuKey++;
-                      } else {
-                          //内循环结束
-                          this.textArr.unshift("交换数据");
-                          if (this.hasAnimation){
-                              this.animation(current.outside,current.min);
-                          }else {
-                              exch(this.items,current.outside,current.min)
-                              //设置最小值
-                              current.min = ++current.outside;
-                              //外循环加一
-                              current.inner = current.outside + 1;
-                              ++this.menuKey;
-                          }
-                      }
-                  } else {
-                      //外循环结束
-                      //排序完成
-                      this.textArr.unshift("排序完成");
-                      this.$message({
-                          message: '排序完成',
-                          type: 'success'
-                      });
-                      this.sortState = 3;
-                      this.current = {};
-                      this.stop();
+                  switch (line) {
+                    case 1:
+                        current.outside++;
+                        if (current.outside < length) {
+                            this.line++;
+                            this.resetj = true;
+                        } else {
+                            //排序完成
+                            this.textArr.unshift("排序完成");
+                            this.$message({
+                                message: '排序完成',
+                                type: 'success'
+                            });
+                            this.sortState = 3;
+                            this.current = {};
+                            this.line = 0;
+                            this.stop();
+                        }
+                        this.menuKey++;
+                        break;
+                    case 2:
+                        current.min = current.outside;
+                        this.line++;
+                        this.menuKey++;
+                        break;
+                    case 3:
+                        if (this.resetj){
+                            current.inner = current.outside + 1;
+                            this.resetj = false;
+                        } else {
+                            current.inner++;
+                        }
+                        if (current.inner < length) {
+                            this.line++;
+                        } else {
+                            this.line = 6;
+                        }
+                        this.menuKey++;
+                        break;
+                    case 4:
+                        if (less(this.items[current.inner],this.items[current.min])) {
+                            this.textArr.unshift('当前值小于最小值');
+                            this.line++;
+                        } else {
+                            this.textArr.unshift('当前值不小于最小值');
+                            this.line = 3;
+                        }
+                        this.menuKey++;
+                        break;
+                    case 5:
+                        current.min = current.inner;
+                        this.line = 3;
+                        this.menuKey++;
+                        break;
+                    case 6:
+                        this.textArr.unshift("交换数据");
+                        if (this.hasAnimation){
+                            this.animation(current.outside,current.min);
+                        }else {
+                            exch(this.items,current.outside,current.min)
+                            this.line = 1;
+                            this.menuKey++;
+                        }
+                        break;
                   }
               } else if (this.sortState === 3) {
                   //已排序
@@ -204,10 +248,7 @@
           ,animation(a,b){
               let current = this.current;
               if (a === b){
-                //设置最小值
-                current.min = ++current.outside;
-                //外循环加一
-                current.inner = current.outside + 1;
+                this.line = 1;
                 return
               }
               this.stop();
@@ -235,17 +276,15 @@
                   draggable_b.remove();
                   //交换
                   exch(this.items,current.outside,current.min)
-                  //设置最小值
-                  current.min = ++current.outside;
-                  //外循环加一
-                  current.inner = current.outside + 1;
-                  ++this.menuKey;
+                  this.line = 1;
+                  this.menuKey++;
                   clearInterval(ina);
                   this.sort();
                 }else {
                   draggable_a.left += Math.floor(row/10);
                   draggable_b.left -= Math.floor(row/10);
                   conut++
+
                 }
               },100 - this.intervalTime);
           }
@@ -261,6 +300,12 @@
             lineNum(){
                 return this.$store.state.lineNum;
             }
+        },
+        created() {
+            const url = `./md/sort-selecttion.md`;
+            axios.get(url).then((response) => {
+                this.htmlMD = response.data;
+            });
         }
     }
 </script>

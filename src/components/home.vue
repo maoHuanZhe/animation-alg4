@@ -41,6 +41,9 @@
           <el-menu-item index="/BinarySearch">
             <span slot="title">二分查找</span>
           </el-menu-item>
+          <el-menu-item index="/BST">
+            <span slot="title">二叉查找树</span>
+          </el-menu-item>
         </el-submenu>
       </el-menu>
     </el-header>
