@@ -1,7 +1,7 @@
 <template>
   <el-container>
-    <el-collapse>
-      <el-collapse-item title="文本描述" name="1">
+    <el-collapse style="padding-bottom: 20px">
+      <el-collapse-item title="选择排序">
         <VueMarkdown :source="htmlMD"></VueMarkdown>
       </el-collapse-item>
     </el-collapse>
@@ -27,7 +27,7 @@
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="select" :demo-tag="demoTag" :sort-state="sortState" />
     </el-main>
     <el-footer>
-      <SortFooter ref="sortFooter" :text-arr="textArr" method="select" :current="current" :line="line" @clear="clear" />
+      <SortFooter :text-arr="textArr" method="select" :current="current" :line="line" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -39,7 +39,7 @@
     import SortMain from "./modules/SortMain";
     import SortFooter from "./modules/SortFooter";
     import VueMarkdown from "vue-markdown";
-    import axios from "axios"
+    import axios from "axios";
     export default {
         name: "selection"
         ,components: {
@@ -124,11 +124,11 @@
                   //开始排序状态
                   this.line++;
                   //设置当前值
-                  if (line === 1){
+                  if (this.line === 1){
                       current.outside = 0;
-                  } else if (line === 2) {
+                  } else if (this.line === 2) {
                       current.min = 0;
-                  } else if (line === 3){
+                  } else if (this.line === 3){
                       current.inner = 1;
                       //设置排序状态为排序中
                       this.sortState = 2;

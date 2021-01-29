@@ -1,5 +1,10 @@
 <template>
   <el-container>
+    <el-collapse style="padding-bottom: 20px">
+      <el-collapse-item title="插入排序">
+        <VueMarkdown :source="htmlMD"></VueMarkdown>
+      </el-collapse-item>
+    </el-collapse>
     <el-header>
       <SortHeader
           :current="current"
@@ -22,7 +27,7 @@
       <SortMain ref="main"  :key="menuKey" :current="current" :items="items" method="insert" :demo-tag="demoTag" :sort-state="sortState" />
     </el-main>
     <el-footer>
-      <SortFooter :text-arr="textArr" method="insert" @clear="clear" />
+      <SortFooter :text-arr="textArr" method="insert" :current="current" :line="line" @clear="clear" />
     </el-footer>
   </el-container>
 </template>
@@ -33,15 +38,21 @@
     import SortHeader from "./modules/SortHeader";
     import SortMain from "./modules/SortMain";
     import SortFooter from "./modules/SortFooter";
+    import VueMarkdown from "vue-markdown";
+    import axios from "axios";
     export default {
         name: "selection"
         ,components:{
             SortHeader,
             SortMain,
-            SortFooter
+            SortFooter,
+            VueMarkdown
         }
         ,data() {
             return {
+                line: 0,
+                resetj:false,
+                htmlMD:'',
                 demoTag:[
                     {text:"未排序元素",type:"info",effect:"plain"},
                     {text:"比较元素",type:"danger",effect:"plain"},
@@ -94,6 +105,7 @@
             }
             ,step: function () {
                 let current = this.current;
+                let line  = this.line;
                 const length = this.items.length;
                 if (length <= 0){
                     this.$message({
@@ -108,32 +120,70 @@
                     //设置排序状态为开始排序
                     this.sortState = 1;
                     this.textArr.unshift('开始排序');
+                    //复制数组
+                    this.items.forEach(((value, index) =>
+                            this.$set(this.oldArr,index,value)
+                    ))
                     this.step();
                 } else if (this.sortState === 1) {
                     //开始排序状态
+                    this.line++;
                     //设置当前值
-                    current.outside = 1;
-                    current.inner = 1;
-                    //复制数组
-                    this.items.forEach(((value, index) =>
-                        this.$set(this.oldArr,index,value)
-                    ))
-                    //设置排序状态为排序中
-                    this.sortState = 2;
+                    if (this.line ===1){
+                        current.outside = 1;
+                    } else if (this.line === 2){
+                        this.resetj = true;
+                        //设置排序状态为排序中
+                        this.sortState = 2;
+                        this.step();
+                    }
+                    this.menuKey++;
                 } else if (this.sortState === 2) {
                     //排序中
-                    //比较当前值与前一个值的大小 小于就交换 不小于就结束循环
-                    if (less(this.items[current.inner],this.items[current.inner - 1])) {
-                        this.textArr.unshift('当前值小于前一个值');
-                        if (this.hasAnimation){
-                            this.animation(current.inner-1,current.inner);
-                        }else {
-                            exch(this.items,current.inner-1,current.inner);
-                            this.changeCurrent(false);
-                        }
-                    } else {
-                        this.textArr.unshift('当前值不小于前一个值');
-                        this.changeCurrent(true);
+                    switch (line) {
+                        case 1:
+                            current.outside++;
+                            //判断外循环
+                            if (current.outside < length) {
+                                this.resetj = true;
+                                this.line = 2;
+                            } else {
+                                //外循环结束
+                                //排序完成
+                                this.textArr.unshift("排序完成");
+                                this.sortState = 3;
+                                this.current = {};
+                                this.line = 0;
+                                this.stop();
+                            }
+                            this.menuKey++;
+                            break;
+                        case 2:
+                            if (this.resetj){
+                                current.inner = current.outside;
+                                this.resetj = false;
+                            } else {
+                                current.inner--;
+                            }
+                            if (current.inner > 0 && less(this.items[current.inner],this.items[current.inner - 1])) {
+                                this.textArr.unshift('当前值小于前一个值');
+                                this.line = 3;
+                            } else {
+                                this.textArr.unshift('当前值不小于前一个值');
+                                this.line = 1;
+                            }
+                            this.menuKey++;
+                            break;
+                        case 3:
+                            this.textArr.unshift("交换数据");
+                            if (this.hasAnimation){
+                                this.animation(current.inner-1,current.inner);
+                            }else {
+                                exch(this.items,current.inner-1,current.inner);
+                                this.menuKey++;
+                                this.line = 2;
+                            }
+                            break;
                     }
                 } else if (this.sortState === 3) {
                     //已排序
@@ -224,6 +274,9 @@
                 const b_row = Math.floor(b/this.lineNum);
                 //b所在的列
                 const b_col = Math.floor(b%this.lineNum);
+                console.log(a);
+                console.log(b);
+                console.log(this.$refs.main.$refs);
                 let draggable_a = new PlainDraggable(this.$refs.main.$refs['tag'+a][0].$el);
                 let draggable_b = new PlainDraggable(this.$refs.main.$refs['tag'+b][0].$el);
                 draggable_a.top += (10 + (b_row - a_row)*52);
@@ -239,7 +292,7 @@
                         draggable_a.remove();
                         draggable_b.remove();
                         exch(this.items,a,b);
-                        this.changeCurrent(false);
+                        this.line = 2;
                         clearInterval(this.intervalIDanimation);
                         this.intervalIDanimation = '';
                         this.sort();
@@ -262,6 +315,12 @@
             lineNum(){
                 return this.$store.state.lineNum;
             }
+        },
+        created() {
+            const url = `./md/sort-insertion.md`;
+            axios.get(url).then((response) => {
+                this.htmlMD = response.data;
+            });
         }
     }
 </script>

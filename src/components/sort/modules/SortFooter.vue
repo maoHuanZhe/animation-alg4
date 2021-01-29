@@ -9,8 +9,12 @@
         <div class="consoleDiv" style="text-align: left;">
           <el-row v-if="method === 'select'">
             <el-col :span="8"><el-tag>i:{{current.outside}}</el-tag></el-col>
-            <el-col :span="8"><el-tag>j:{{current.inner}}</el-tag></el-col>
             <el-col :span="8"><el-tag>min:{{current.min}}</el-tag></el-col>
+            <el-col :span="8"><el-tag>j:{{current.inner}}</el-tag></el-col>
+          </el-row>
+          <el-row v-else-if="method === 'insert'">
+            <el-col :span="12"><el-tag>i:{{current.outside}}</el-tag></el-col>
+            <el-col :span="12"><el-tag>j:{{current.inner}}</el-tag></el-col>
           </el-row>
           <div v-for="(text,index)  in textArr" :key="index">
             <el-link :underline="false" type="primary">{{text}}</el-link>
@@ -38,15 +42,10 @@
           </code>
           <code v-else-if="method==='insert'" >
                 <pre>
-for(int i = 0;i < arr.size(); i++;){
-  for(int j = i + 1; j< arr.size(); j++;){
-    int min = i;
-    if(less(arr[j],arr[min]){
-      min = j;
-    }
-  }
-  exch(arr,i,min);
-}
+<el-link :type="getType(1)" :class="getClass(1)" :underline="false">for(int i = 1;i < arr.size(); i++;){</el-link>
+  <el-link :type="getType(2)" :class="getClass(2)" :underline="false">for(int j = i; j > 0 && less(arr[j],arr[j-1]; j--;)</el-link>
+    <el-link :type="getType(3)" :class="getClass(3)" :underline="false">exch(arr,j,j-1);</el-link>
+<el-link :underline="false">}</el-link>
                 </pre>
           </code>
           <code v-else-if="method==='shell'" >
@@ -312,22 +311,18 @@ private void sink(Comparable[] a,int k,int N){
                 }
             },
             getType(index){
-                if (this.method === "select"){
-                    if (index === this.line){
-                        return "primary"
-                    } else {
-                        return "";
-                    }
-                }
+              if (index === this.line){
+                  return "primary"
+              } else {
+                  return "";
+              }
             },
             getClass(index){
-                if (this.method === "select"){
-                    if (index === this.line){
-                        return "lineSelected"
-                    } else {
-                        return "";
-                    }
-                }
+              if (index === this.line){
+                  return "lineSelected"
+              } else {
+                  return "";
+              }
             },
         }
     }
