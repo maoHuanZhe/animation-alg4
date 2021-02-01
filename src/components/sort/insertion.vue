@@ -122,7 +122,7 @@
                     this.textArr.unshift('开始排序');
                     //复制数组
                     this.items.forEach(((value, index) =>
-                            this.$set(this.oldArr,index,value)
+                      this.$set(this.oldArr,index,value)
                     ))
                     this.step();
                 } else if (this.sortState === 1) {
@@ -151,6 +151,10 @@
                                 //外循环结束
                                 //排序完成
                                 this.textArr.unshift("排序完成");
+                                this.$message({
+                                    message: '排序完成',
+                                    type: 'success'
+                                });
                                 this.sortState = 3;
                                 this.current = {};
                                 this.line = 0;
@@ -169,7 +173,9 @@
                                 this.textArr.unshift('当前值小于前一个值');
                                 this.line = 3;
                             } else {
-                                this.textArr.unshift('当前值不小于前一个值');
+                                if (current.inner > 0){
+                                    this.textArr.unshift('当前值不小于前一个值');
+                                }
                                 this.line = 1;
                             }
                             this.menuKey++;
@@ -262,6 +268,7 @@
                 }
                 this.current = {}
                 this.sortState = 0;
+                this.line = 0;
                 ++this.menuKey;
             }
             ,animation(a,b){
@@ -274,9 +281,6 @@
                 const b_row = Math.floor(b/this.lineNum);
                 //b所在的列
                 const b_col = Math.floor(b%this.lineNum);
-                console.log(a);
-                console.log(b);
-                console.log(this.$refs.main.$refs);
                 let draggable_a = new PlainDraggable(this.$refs.main.$refs['tag'+a][0].$el);
                 let draggable_b = new PlainDraggable(this.$refs.main.$refs['tag'+b][0].$el);
                 draggable_a.top += (10 + (b_row - a_row)*52);
@@ -293,6 +297,7 @@
                         draggable_b.remove();
                         exch(this.items,a,b);
                         this.line = 2;
+                        this.menuKey++;
                         clearInterval(this.intervalIDanimation);
                         this.intervalIDanimation = '';
                         this.sort();

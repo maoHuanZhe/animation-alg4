@@ -16,6 +16,12 @@
             <el-col :span="12"><el-tag>i:{{current.outside}}</el-tag></el-col>
             <el-col :span="12"><el-tag>j:{{current.inner}}</el-tag></el-col>
           </el-row>
+          <el-row v-else-if="method === 'shell'">
+            <el-col :span="6"><el-tag>N:{{current.N}}</el-tag></el-col>
+            <el-col :span="6"><el-tag>h:{{current.h}}</el-tag></el-col>
+            <el-col :span="6"><el-tag>i:{{current.outside}}</el-tag></el-col>
+            <el-col :span="6"><el-tag>j:{{current.inner}}</el-tag></el-col>
+          </el-row>
           <div v-for="(text,index)  in textArr" :key="index">
             <el-link :underline="false" type="primary">{{text}}</el-link>
           </div>
@@ -50,17 +56,16 @@
           </code>
           <code v-else-if="method==='shell'" >
                 <pre>
-int N = a.length;
-int h = 1;
-while(h < N/3) h = 3*h + 1;
-while(h >= 1) {
-  for(int i = h;i < arr.size(); i++;){
-    for(int j = i; j >=h && less(a[j-h],a[j]); j-=h;){
-      exch(arr,j,j-h);
-    }
-  }
-  h/=3;
-}
+<el-link :type="getType(1)" :class="getClass(1)" :underline="false">int N = a.length;</el-link>
+<el-link :type="getType(2)" :class="getClass(2)" :underline="false">int h = 1;</el-link>
+<el-link :type="getType(3)" :class="getClass(3)" :underline="false">while(h < N/3) h = 3*h + 1;</el-link>
+<el-link :type="getType(4)" :class="getClass(4)" :underline="false">while(h >= 1) {</el-link>
+  <el-link :type="getType(5)" :class="getClass(5)" :underline="false">for(int i = h;i < N; i++;){</el-link>
+    <el-link :type="getType(6)" :class="getClass(6)" :underline="false">for(int j = i; j >=h && less(a[j-h],a[j]); j-=h;)</el-link>
+      <el-link :type="getType(7)" :class="getClass(7)" :underline="false">exch(arr,j,j-h);</el-link>
+  <el-link :underline="false">}</el-link>
+  <el-link :type="getType(8)" :class="getClass(8)" :underline="false">h/=3;</el-link>
+<el-link :underline="false">}</el-link>
                 </pre>
           </code>
           <code v-else-if="method==='merge'" >

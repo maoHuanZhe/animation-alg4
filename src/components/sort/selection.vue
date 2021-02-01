@@ -124,11 +124,11 @@
                   //开始排序状态
                   this.line++;
                   //设置当前值
-                  if (this.line === 1){
+                  if (line === 1){
                       current.outside = 0;
-                  } else if (this.line === 2) {
+                  } else if (line === 2) {
                       current.min = 0;
-                  } else if (this.line === 3){
+                  } else if (line === 3){
                       current.inner = 1;
                       //设置排序状态为排序中
                       this.sortState = 2;
@@ -243,6 +243,7 @@
                 }
                 this.current = {}
                 this.sortState = 0;
+                this.line = 0;
                 ++this.menuKey;
           }
           ,animation(a,b){
