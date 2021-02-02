@@ -36,9 +36,9 @@
         <div class="consoleDiv">
           <code v-if="method==='select'">
                 <pre>
-<el-link :type="getType(1)" :class="getClass(1)" :underline="false">for(int i = 0;i < arr.size(); i++;){</el-link>
+<el-link :type="getType(1)" :class="getClass(1)" :underline="false">for(<el-link :type="getType2(1.1)" :underline="false">int i = 0;</el-link><el-link :type="getType2(1.2)" :underline="false">i < arr.size();</el-link> <el-link :type="getType2(1.3)" :underline="false">i++</el-link>){</el-link>
   <el-link :type="getType(2)" :class="getClass(2)" :underline="false">int min = i;</el-link>
-  <el-link :type="getType(3)" :class="getClass(3)" :underline="false">for(int j = i + 1; j< arr.size(); j++;){</el-link>
+  <el-link :type="getType(3)" :class="getClass(3)" :underline="false">for(<el-link :type="getType2(3.1)" :underline="false">int j = i + 1;</el-link> <el-link :type="getType2(3.2)" :underline="false">j < arr.size();</el-link> <el-link :type="getType2(3.3)" :underline="false">j++</el-link>){</el-link>
     <el-link :type="getType(4)" :class="getClass(4)" :underline="false">if(less(arr[j],arr[min])</el-link>
       <el-link :type="getType(5)" :class="getClass(5)" :underline="false">min = j;</el-link>
   <el-link :underline="false">}</el-link>
@@ -48,8 +48,8 @@
           </code>
           <code v-else-if="method==='insert'" >
                 <pre>
-<el-link :type="getType(1)" :class="getClass(1)" :underline="false">for(int i = 1;i < arr.size(); i++;){</el-link>
-  <el-link :type="getType(2)" :class="getClass(2)" :underline="false">for(int j = i; j > 0 && less(arr[j],arr[j-1]; j--;)</el-link>
+<el-link :type="getType(1)" :class="getClass(1)" :underline="false">for(<el-link :type="getType2(1.1)" :underline="false">int i = 1;</el-link> <el-link :type="getType2(1.2)" :underline="false">i < arr.size();</el-link> <el-link :type="getType2(1.3)" :underline="false">i++</el-link>){</el-link>
+  <el-link :type="getType(2)" :class="getClass(2)" :underline="false">for(<el-link :type="getType2(2.1)" :underline="false">int j = i;</el-link> <el-link :type="getType2(2.2)" :underline="false">j > 0</el-link> && <el-link :type="getType2(2.3)" :underline="false">less(arr[j],arr[j-1];</el-link> <el-link :type="getType2(2.4)" :underline="false">j--</el-link>)</el-link>
     <el-link :type="getType(3)" :class="getClass(3)" :underline="false">exch(arr,j,j-1);</el-link>
 <el-link :underline="false">}</el-link>
                 </pre>
@@ -58,10 +58,10 @@
                 <pre>
 <el-link :type="getType(1)" :class="getClass(1)" :underline="false">int N = a.length;</el-link>
 <el-link :type="getType(2)" :class="getClass(2)" :underline="false">int h = 1;</el-link>
-<el-link :type="getType(3)" :class="getClass(3)" :underline="false">while(h < N/3) h = 3*h + 1;</el-link>
+<el-link :type="getType(3)" :class="getClass(3)" :underline="false">while(<el-link :type="getType2(3.1)" :underline="false">h < N/3</el-link>) <el-link :type="getType2(3.2)" :underline="false">h = 3*h + 1;</el-link></el-link>
 <el-link :type="getType(4)" :class="getClass(4)" :underline="false">while(h >= 1) {</el-link>
-  <el-link :type="getType(5)" :class="getClass(5)" :underline="false">for(int i = h;i < N; i++;){</el-link>
-    <el-link :type="getType(6)" :class="getClass(6)" :underline="false">for(int j = i; j >=h && less(a[j-h],a[j]); j-=h;)</el-link>
+  <el-link :type="getType(5)" :class="getClass(5)" :underline="false">for(<el-link :type="getType2(5.1)" :underline="false">int i = h;</el-link> <el-link :type="getType2(5.2)" :underline="false">i < N;</el-link> <el-link :type="getType2(5.3)" :underline="false">i++</el-link>){</el-link>
+    <el-link :type="getType(6)" :class="getClass(6)" :underline="false">for(<el-link :type="getType2(6.1)" :underline="false">int j = i;</el-link> <el-link :type="getType2(6.2)" :underline="false">j >=h</el-link> && <el-link :type="getType2(6.3)" :underline="false">less(a[j-h],a[j]);</el-link> <el-link :type="getType2(6.4)" :underline="false">j-=h</el-link>)</el-link>
       <el-link :type="getType(7)" :class="getClass(7)" :underline="false">exch(arr,j,j-h);</el-link>
   <el-link :underline="false">}</el-link>
   <el-link :type="getType(8)" :class="getClass(8)" :underline="false">h/=3;</el-link>
@@ -316,11 +316,18 @@ private void sink(Comparable[] a,int k,int N){
                 }
             },
             getType(index){
-              if (index === this.line){
-                  return "primary"
-              } else {
-                  return "";
-              }
+                if (index === Math.floor(this.line)){
+                    return "primary"
+                } else {
+                    return "";
+                }
+            },
+            getType2(index){
+                if (index === this.line){
+                    return "danger"
+                } else {
+                    return "";
+                }
             },
             getClass(index){
               if (index === this.line){

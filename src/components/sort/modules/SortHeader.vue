@@ -16,7 +16,7 @@
       <el-button class="hidden-xs-only" :size="getSize()" v-if="!hasAnimation" type="primary" @click="refresh" icon="el-icon-refresh-right">重置</el-button>
     </el-col>
     <el-col :sm="4" :md="2" :lg="2" :xl="2" v-if="!hasAnimation" class="hidden-xs-only">
-      <el-slider v-model="intervalTime" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
+      <el-slider v-model="time" :min="1" :max="99" @change="changeInterval" style="width:100px;"></el-slider>
     </el-col>
   </el-row>
 </template>
@@ -35,7 +35,8 @@
         },
         data() {
           return {
-              input:""
+              input:"",
+              time:99
           }
         },
         computed: {
@@ -75,7 +76,7 @@
                 this.$emit("create",this.input)
             },
             changeInterval(){
-                this.$emit("changeInterval")
+                this.$emit("changeInterval",this.time)
             },
         }
     }

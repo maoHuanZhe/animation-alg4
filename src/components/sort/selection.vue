@@ -88,7 +88,7 @@
                 //动画定时器
                 ,intervalIDanimation : ''
                 //定时器速度
-                ,intervalTime:50
+                ,intervalTime:99
             }
         },
         methods:{
@@ -119,28 +119,22 @@
                 this.items.forEach(((value, index) =>
                         this.$set(this.oldArr,index,value)
                 ))
-                this.step();
+                this.line = 1.1;
               } else if (this.sortState === 1) {
                   //开始排序状态
-                  this.line++;
                   //设置当前值
-                  if (line === 1){
+                  if (line === 1.1){
                       current.outside = 0;
-                  } else if (line === 2) {
-                      current.min = 0;
-                  } else if (line === 3){
-                      current.inner = 1;
+                      this.line = 1.2;
                       //设置排序状态为排序中
                       this.sortState = 2;
                   }
               } else if (this.sortState === 2) {
                   //排序中
                   switch (line) {
-                    case 1:
-                        current.outside++;
+                    case 1.2:
                         if (current.outside < length) {
-                            this.line++;
-                            this.resetj = true;
+                            this.line = 2;
                         } else {
                             //排序完成
                             this.textArr.unshift("排序完成");
@@ -155,23 +149,32 @@
                         }
                         this.menuKey++;
                         break;
-                    case 2:
-                        current.min = current.outside;
-                        this.line++;
+                    case 1.3:
+                        current.outside++;
+                        this.line = 1.2;
                         this.menuKey++;
                         break;
-                    case 3:
-                        if (this.resetj){
-                            current.inner = current.outside + 1;
-                            this.resetj = false;
-                        } else {
-                            current.inner++;
-                        }
+                    case 2:
+                        current.min = current.outside;
+                        this.line = 3.1;
+                        this.menuKey++;
+                        break;
+                    case 3.1:
+                        current.inner = current.outside + 1;
+                        this.line = 3.2;
+                        this.menuKey++;
+                        break;
+                    case 3.2:
                         if (current.inner < length) {
-                            this.line++;
+                            this.line = 4;
                         } else {
                             this.line = 6;
                         }
+                        this.menuKey++;
+                        break;
+                    case 3.3:
+                        current.inner++;
+                        this.line = 3.2;
                         this.menuKey++;
                         break;
                     case 4:
@@ -180,13 +183,13 @@
                             this.line++;
                         } else {
                             this.textArr.unshift('当前值不小于最小值');
-                            this.line = 3;
+                            this.line = 3.3;
                         }
                         this.menuKey++;
                         break;
                     case 5:
                         current.min = current.inner;
-                        this.line = 3;
+                        this.line = 3.3;
                         this.menuKey++;
                         break;
                     case 6:
@@ -195,7 +198,7 @@
                             this.animation(current.outside,current.min);
                         }else {
                             exch(this.items,current.outside,current.min)
-                            this.line = 1;
+                            this.line = 1.3;
                             this.menuKey++;
                         }
                         break;
@@ -229,7 +232,8 @@
               clearInterval(this.intervalID);
               this.intervalID = -1;
           },
-          changeInterval(){
+          changeInterval(time){
+              this.intervalTime = time;
               this.stop();
               this.sort();
           },

@@ -86,7 +86,7 @@
                 ,intervalIDanimation : ''
                 ,isStop : false
                 //定时器速度
-                ,intervalTime:50
+                ,intervalTime:99
             }
         },
         methods:{
@@ -118,19 +118,19 @@
                 if (this.sortState === 0){
                     //未排序状态
                     //设置排序状态为开始排序
-                    this.sortState = 1;
+                    this.sortState = 2;
                     this.textArr.unshift('开始排序');
                     //复制数组
                     this.items.forEach(((value, index) =>
                       this.$set(this.oldArr,index,value)
                     ))
-                    this.step();
+                    this.line = 1.1;
                 } else if (this.sortState === 1) {
                     //开始排序状态
-                    this.line++;
+
                     //设置当前值
                     if (this.line ===1){
-                        current.outside = 1;
+
                     } else if (this.line === 2){
                         this.resetj = true;
                         //设置排序状态为排序中
@@ -141,12 +141,15 @@
                 } else if (this.sortState === 2) {
                     //排序中
                     switch (line) {
-                        case 1:
-                            current.outside++;
+                        case 1.1:
+                            current.outside = 1;
+                            this.line = 1.2;
+                            this.menuKey++;
+                            break;
+                        case 1.2:
                             //判断外循环
                             if (current.outside < length) {
-                                this.resetj = true;
-                                this.line = 2;
+                                this.line = 2.1;
                             } else {
                                 //外循环结束
                                 //排序完成
@@ -162,22 +165,37 @@
                             }
                             this.menuKey++;
                             break;
-                        case 2:
-                            if (this.resetj){
-                                current.inner = current.outside;
-                                this.resetj = false;
+                        case 1.3:
+                            current.outside++;
+                            this.line = 1.2;
+                            this.menuKey++;
+                            break;
+                        case 2.1:
+                            current.inner = current.outside;
+                            this.line = 2.2;
+                            this.menuKey++;
+                            break;
+                        case 2.2:
+                            if (current.inner > 0) {
+                                this.line = 2.3;
                             } else {
-                                current.inner--;
+                                this.line = 1.3;
                             }
-                            if (current.inner > 0 && less(this.items[current.inner],this.items[current.inner - 1])) {
+                            this.menuKey++;
+                            break;
+                        case 2.3:
+                            if (less(this.items[current.inner],this.items[current.inner - 1])) {
                                 this.textArr.unshift('当前值小于前一个值');
                                 this.line = 3;
                             } else {
-                                if (current.inner > 0){
-                                    this.textArr.unshift('当前值不小于前一个值');
-                                }
-                                this.line = 1;
+                                this.textArr.unshift('当前值不小于前一个值');
+                                this.line = 1.3;
                             }
+                            this.menuKey++;
+                            break;
+                        case 2.4:
+                            current.inner--;
+                            this.line = 2.2;
                             this.menuKey++;
                             break;
                         case 3:
@@ -187,7 +205,7 @@
                             }else {
                                 exch(this.items,current.inner-1,current.inner);
                                 this.menuKey++;
-                                this.line = 2;
+                                this.line = 2.4;
                             }
                             break;
                     }
@@ -254,7 +272,8 @@
                 clearInterval(this.intervalID);
                 this.intervalID = -1;
             },
-            changeInterval(){
+            changeInterval(time){
+                this.intervalTime = time;
                 this.stop();
                 this.sort();
             },
@@ -296,7 +315,7 @@
                         draggable_a.remove();
                         draggable_b.remove();
                         exch(this.items,a,b);
-                        this.line = 2;
+                        this.line = 2.4;
                         this.menuKey++;
                         clearInterval(this.intervalIDanimation);
                         this.intervalIDanimation = '';
